@@ -1,5 +1,4 @@
 #include forgetmenot:shaders/lib/inc/header.glsl 
-#include forgetmenot:shaders/lib/inc/exposure.glsl 
 #include forgetmenot:shaders/lib/inc/noise.glsl 
 
 uniform sampler2D u_color;
@@ -173,6 +172,8 @@ void main() {
 	color.g = sample_gaussian(texcoord * coord_mults.g + lat_focus_err.g, axi_focus_err.g, 2)).g;
 	color.b = sample_gaussian(texcoord * coord_mults.b + lat_focus_err.b, axi_focus_err.b, 2)).b;*/
 
+	vec3 finalColor = color.rgb;
+
 	float expo = clamp(exposure, 0.0003, 0.002);
 
 	// aces tonemap
@@ -223,5 +224,5 @@ void main() {
 	//const int bitDepth = 256;
 	//finalColor = round(finalColor * bitDepth) / bitDepth;
 
-	fragColor = vec4(color, 1.0);
+	fragColor = vec4(finalColor, 1.0);
 }

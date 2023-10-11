@@ -6,7 +6,7 @@ layout(location = 0) out float fragColor;
 
 void main()
 {
-	init();
+	initGlobals();
 
 	int index = int(gl_FragCoord.x);
 
