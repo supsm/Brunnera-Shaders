@@ -27,19 +27,25 @@ const vec2[] TAA_OFFSETS = vec2[8] (
 		vec2(0.0),
 		vec2(0.0)
 	#else
-		vec2(-0.75, 0.25) * 0.75,
-		vec2( 0.25, 0.75) * 0.75,
-		vec2( 0.75,-0.25) * 0.75,
-		vec2(-0.25,-0.75) * 0.75,
-		vec2(-0.25, 0.75) * 0.75,
-		vec2( 0.75, 0.25) * 0.75,
-		vec2( 0.25,-0.75) * 0.75,
-		vec2(-0.75,-0.25) * 0.75
+		vec2( 0.125,-0.375),
+		vec2(-0.125, 0.375),
+		vec2( 0.625, 0.125),
+		vec2( 0.375,-0.625),
+		vec2(-0.625, 0.625),
+		vec2(-0.875,-0.125),
+		vec2( 0.375,-0.875),
+		vec2( 0.875, 0.875)
 	#endif
 );
 
 vec2 getTaaOffset(in uint frame) {
 	return TAA_OFFSETS[frame % 8u];
+}
+vec2 getJitteredTexcoord(in vec2 coord, in uint frame) {
+	vec2 clip = coord * 2.0 - 1.0;
+	clip += getTaaOffset(frame) * (1.0 / frxu_size);
+
+	return clip * 0.5 + 0.5;
 }
 
 // Common between material shaders and pipeline shaders - includes the option includes
@@ -49,21 +55,4 @@ vec2 getTaaOffset(in uint frame) {
 #include forgetmenot:shaders/lib/inc/utility.glsl 
 #include forgetmenot:shaders/lib/inc/general.glsl 
 #include forgetmenot:shaders/lib/inc/palette.glsl 
-
-// Global utility variables
-float fmn_rainFactor;
-float fmn_time;
-
-bool isModdedDimension;
-
-vec3 blockLightColor;
-
-// Should be called in every program that uses these variables
-void init() {
-	fmn_rainFactor = frx_smoothedRainGradient * 0.5 + frx_smoothedThunderGradient * 0.5;
-	fmn_time = mod(frx_renderSeconds, 4000.0);
-
-	isModdedDimension = frx_worldIsOverworld + frx_worldIsNether + frx_worldIsEnd == 0;
-
-	blockLightColor = saturation(vec3(1.0, 0.49, 0.16) * 2.0, BLOCKLIGHT_WARMTH);
-}
+#include forgetmenot:shaders/lib/inc/globals.glsl 

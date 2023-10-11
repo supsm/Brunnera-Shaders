@@ -2,7 +2,18 @@
 	images: [
 		{
 			name: "shadow_map",
-			size: 1024,
+			size: {
+				default: 1024,
+				optionMap: {
+					shadow_resolution: [
+						{ from: "512", to: 512 },
+						{ from: "1024", to: 1024 },
+						{ from: "2048", to: 2048 },
+						{ from: "3072", to: 3072 },
+						{ from: "4096", to: 4096 },
+					]
+				}
+			},
 			internalFormat: "DEPTH_COMPONENT32",
 			pixelFormat: "DEPTH_COMPONENT",
 			pixelDataType: "FLOAT",
@@ -38,7 +49,7 @@
 		fragmentSource: "forgetmenot:shaders/gbuffer/shadow.frag",
 		offsetSlopeFactor: 1.1,
 		offsetBiasUnits: 4.0,
-		cascadeRadius: [48, 16, 8]
+		cascadeRadius: [96, 32, 12]
 	},
 
 	sky: {

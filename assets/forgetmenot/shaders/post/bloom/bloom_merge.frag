@@ -1,7 +1,7 @@
 #include forgetmenot:shaders/lib/inc/header.glsl
 #include forgetmenot:shaders/lib/inc/space.glsl
 #include forgetmenot:shaders/lib/inc/sky.glsl
-#include forgetmenot:shaders/lib/inc/fog.glsl
+#include forgetmenot:shaders/lib/inc/exposure.glsl
 
 uniform sampler2D u_color;
 uniform sampler2D u_downsampled;
@@ -9,6 +9,8 @@ uniform sampler2D u_upsampled;
 
 uniform sampler2D u_sort;
 uniform sampler2D u_solid_depth;
+
+uniform sampler2D u_exposure;
 
 layout(location = 0) out vec4 fragColor;
 
@@ -31,16 +33,11 @@ vec4 frx_sampleTentLod(sampler2D tex, vec2 uv, vec2 dist, float lod) {
 }
 
 void main() {
-	init();
+	initGlobals();
 
 	vec4 color = texture(u_color, texcoord);
-
-	float fogTransmittance = texture(u_sort, texcoord).a;
-	fogTransmittance = mix(1.0, fogTransmittance, floor(texture(u_solid_depth, texcoord).r));
-
-	color = mix(frx_sampleTentLod(u_downsampled, texcoord, 1.0 / frxu_size, min(6.0, fogTransmittance * 1.0)), color, smoothstep(0.9, 1.0, fogTransmittance));
-
 	vec4 bloom = frx_sampleTent(u_upsampled, texcoord, 1. / frxu_size, 0) / 7.0;
 
 	fragColor = mix(color, bloom, 0.2 + 0.4 * frx_cameraInFluid + 0.2 * frx_worldIsNether);
+	//fragColor = bloom;
 }

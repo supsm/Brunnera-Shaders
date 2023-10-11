@@ -9,7 +9,7 @@ out vec2 texcoord;
 out float exposure;
 
 void main() {
-	init();
+	initGlobals();
 
 	vec2 screen = (frxu_frameProjectionMatrix * vec4(in_vertex.xy * frxu_size, 0.0, 1.0)).xy;
 

@@ -42,24 +42,24 @@ CloudLayer createCumulusCloudLayer(in vec3 viewDir) {
 	cloudLayer.altitude = 0.001;
 	cloudLayer.plane = createCloudPlane(viewDir) + 0.00001 * frx_cameraPos.xz / cloudLayer.altitude + 0.00001 * fmn_time / cloudLayer.altitude;
 
-	cloudLayer.density = 15.0;
+	cloudLayer.density = 45.0;
 	cloudLayer.selfShadowSteps = 5;
 
 	cloudLayer.useNoiseTexture = false;
 
 	cloudLayer.noiseOctaves = 6;
 	cloudLayer.noiseLacunarity = 2.5;
-	cloudLayer.noiseLowerBound = 0.35 - 0.2 * fmn_rainFactor;
-	cloudLayer.noiseUpperBound = 1.0;
+	cloudLayer.noiseLowerBound = 0.35 - 0.1 * fmn_rainFactor;
+	cloudLayer.noiseUpperBound = 1.5;
 	
 	cloudLayer.domainMult = vec2(1.0);
-	cloudLayer.rangeMult = mix(smoothHash(cloudLayer.plane * 0.3 + frx_renderSeconds * 0.01), 1.0, 0.5 * fmn_rainFactor);
+	cloudLayer.rangeMult = mix(smoothHash(cloudLayer.plane * 0.3 + frx_renderSeconds * 0.01), 1.0, smoothstep(0.2, 0.4, fmn_atmosphereParams.cloudCoverage));
 
 	cloudLayer.domainShift = vec2(0.0);
-	cloudLayer.rangeShift = 0.0;
+	cloudLayer.rangeShift = fmn_atmosphereParams.cloudCoverage;
 
-	cloudLayer.curlNoiseAmount = 0.0001;
-	cloudLayer.curlNoiseFrequency = 3.5;
+	cloudLayer.curlNoiseAmount = 0.000075;
+	cloudLayer.curlNoiseFrequency = 4.0;
 
 	cloudLayer.render = true;
 
@@ -147,13 +147,15 @@ vec2 getCloudsTransmittanceAndScattering(in vec3 viewDir, in CloudLayer cloudLay
 		return vec2(1.0, 0.0);
 	}
 
+	vec2 plane = cloudLayer.plane;
+
 	float noise = sampleCloudNoise(cloudLayer);
 	
 	float transmittance = exp2(-noise * cloudLayer.density);
 	float scattering = 0.75;
 
 	if(cloudLayer.selfShadowSteps > 0) {
-		cloudLayer.noiseOctaves = max(2, cloudLayer.noiseOctaves / 2);
+		//cloudLayer.noiseOctaves = max(4, cloudLayer.noiseOctaves / 2);
 
 		vec2 temp = viewDir.xz * rcp(viewDir.y);
 		float skyLightZenithAngle = rcp(abs(frx_skyLightVector.y));
@@ -170,13 +172,18 @@ vec2 getCloudsTransmittanceAndScattering(in vec3 viewDir, in CloudLayer cloudLay
 			lightOpticalDepth += sampleCloudNoise(cloudLayer) * rcp(cloudLayer.selfShadowSteps);
 		}
 
-		lightOpticalDepth *= 1.0 + noise;
+		//lightOpticalDepth *= 1.0 + noise - fbmHash(cloudLayer.plane, 4) * 1.4;
+		//lightOpticalDepth *= 1.0 - transmittance;
+		lightOpticalDepth = max(0.0, lightOpticalDepth);
 
 		scattering = exp2(-lightOpticalDepth * cloudLayer.density * 0.3);
 	}
 
+	transmittance = mix(transmittance, 1.0, exp(-clamp01(viewDir.y) * 100.0));
+	//transmittance = mix(transmittance, 0.0, smoothstep(0.7, 0.9, _interpolateRandom(fmn_worldTime, -0.5, 0.25, 0.2, false)));
+
 	return vec2(
-		mix(transmittance, 1.0, linearstep(0.05, 0.0, viewDir.y)),
+		transmittance,
 		scattering
 	);
 }
@@ -191,7 +198,7 @@ vec3 getSkyColor(
 	in sampler2D skyLutDay,
 	in sampler2D skyLutNight
 ) {
-	if(isModdedDimension) {
+	if(fmn_isModdedDimension) {
 		return pow(frx_fogColor.rgb, vec3(2.2));
 	}
 
@@ -206,11 +213,22 @@ vec3 getSkyColor(
 			linearstep(0.05, -0.05, sunVector.y)
 		);
 
-		vec3 dayColorSample = 2.0 * getValFromSkyLUT(viewDir, sunVector, skyLutDay);
-		vec3 nightColorSample = getValFromSkyLUT(viewDir, moonVector, skyLutNight);
+		const float skyBrightness = 1.6;
+
+		vec3 dayColorSample = 2.0 * getValFromSkyLUT(viewDir, sunVector, skyLutDay) * skyBrightness;
+		vec3 nightColorSample = getValFromSkyLUT(viewDir, moonVector, skyLutNight) * skyBrightness;
 		
-		vec3 sun = sunBrightness * step(0.9993, dot(viewDir, sunVector)) * sunTransmittance;
-		vec3 moon = sunBrightness * step(0.9995, dot(viewDir, moonVector)) * moonTransmittance;
+		float dist = rayIntersectSphere(skyViewPos, viewDir, groundRadiusMM);
+
+		sunBrightness *= step(dist, 0.0);
+
+		float moonRadius = 0.9998 - 0.0003 * exp(-clamp01(moonVector.y) * 10.0);
+		
+		float moonFactor = step(moonRadius, dot(viewDir, moonVector));
+
+
+		vec3 sun = sunBrightness * step(0.9997, dot(viewDir, sunVector)) * sunTransmittance;
+		vec3 moon = sunBrightness * 0.25 * moonFactor * moonTransmittance;
 
 		vec3 dayColor = dayColorSample + sun;
 		vec3 nightColor = nightColorSample + moon;
@@ -232,10 +250,10 @@ vec3 getSkyColor(
 			vec3 tdata = getTimeOfDayFactors();
 			float starMultiplier = tdata.z * 0.5 + tdata.y;
 
-			nightColor += stars * starMultiplier;
+			nightColor += 0.25 * stars * starMultiplier * (1.0 - moonFactor);
 		}
 
-		vec3 result = 40.0 * blueHourMultiplier * (dayColor + nightColor);
+		vec3 result = 40.0 * (dayColor + nightColor);
 
 		return result * (1.0 + 9.0 * frx_skyFlashStrength);
 	} else if(frx_worldIsNether == 1) {
@@ -243,22 +261,51 @@ vec3 getSkyColor(
 	} else if(frx_worldIsEnd == 1) {
 		vec3 skyColor = vec3(0.0);
 
-		float mistAmount = 0.1 * fbmHash3D(viewDir * 3.0, 4);
-		vec3 mist = END_MIST_COLOR * mistAmount;
 
-		vec3 starPos = normalize(vec3(-0.7, 0.1, 0.7));
-		float VdotStar = clamp01(dot(viewDir, starPos));
+		// const vec2 starDirection = vec2(1.0, 0.0);
 
-		vec3 star = END_MIST_COLOR * vec3(min(20.0, 0.04 / (distance(starPos, viewDir))));
+		// const int samples = 100;
 
-		// Not the main star
-		vec3 otherStars = 0.25 * vec3(
-			smoothHash(viewDir * 40.0), 
-			smoothHash(viewDir * 40.0 + 100.0), 
-			smoothHash(viewDir * 40.0 + 200.0)
-		) * linearstep(4.0, 100.0, 1.0 / max(0.0001, cellular2x2x2(viewDir * 10.0).x - 0.03));
 
-		skyColor += mist + star + otherStars;
+		// for(int i = 0; i < samples; i++) {
+		// 	skyColor += starColor * step(0.95 + 0.03 * i / samples, 1.0 - cellular2x2(plane + starDirection * (i + randomFloat()) / samples).x) / samples;
+		// }
+
+		// skyColor *= exp(-plane.x * 0.3);
+
+		vec2 plane = viewDir.xz / (abs(viewDir.y + length(viewDir.xz) * 0.3));
+		plane *= 10.0;
+
+		// Normal stars
+		vec3 stars = vec3(0.0);
+		vec3 starColor = normalize(hash32(floor(plane)) + 0.001);
+
+		for(int i = 0; i < 3; i++) {
+			float brightness = 1.0 + 10.0 * hash12(vec2(i) + floor(plane));
+			stars += brightness * step(0.95 - 0.03 * i, 1.0 - cellular2x2x2(viewDir * 40.0 * (1.0 + i * 0.1)).x);
+		}
+
+		skyColor += (starColor * 0.5 + 0.5) * 0.3 * stars;
+
+		// Special stars 
+		float starDensity = exp(-abs(pow2(rotate2D(viewDir.yz, 0.6).y)) * 20.0);
+		starDensity *= smoothstep(0.0, 0.01, starDensity);
+
+		stars = vec3(0.0);
+		starColor *= vec3(0.5, 1.5, 0.9);
+
+		for(int i = 0; i < 3; i++) {
+			int j = i + 3;
+
+			float brightness = 1.0 + 10.0 * hash12(vec2(j) + floor(plane));
+			stars += brightness * step(0.95 - 0.03 * i, 1.0 - cellular2x2x2(viewDir * 40.0 * (1.0 + j * 0.1)).x);
+		}
+
+		skyColor += starColor * 40.0 * stars * starDensity;
+		
+		// Fog
+		float noise = fbmHash3D(viewDir, 5, 3.0, 0.0);
+		skyColor += vec3(0.2, 0.9, 0.4) * pow4(noise) * (starDensity);
 
 		return skyColor;
 	}
@@ -287,6 +334,28 @@ vec3 getSkyColor(
 	);
 }
 
+vec3 getSkyColor(
+	in vec3 viewDir, 
+	in float sunBrightness,
+
+	in sampler2D transmittanceLut,
+	in sampler2D skyLutDay,
+	in sampler2D skyLutNight
+) {
+	vec3 temp = getValFromTLUT(transmittanceLut, skyViewPos, viewDir);
+
+	return getSkyColor(
+		viewDir,
+		temp,
+		nightAdjust(temp),
+		sunBrightness,
+		false,
+
+		skyLutDay,
+		skyLutNight
+	);
+}
+
 vec3 getClouds(
 	in vec3 viewDir,
 	in vec3 sunTransmittance,
@@ -300,7 +369,7 @@ vec3 getClouds(
 
 	in vec3 skyColor
 ) {
-	if(frx_worldHasSkylight == 0 || isModdedDimension) {
+	if(frx_worldHasSkylight == 0 || fmn_isModdedDimension) {
 		return skyColor;
 	}
 
@@ -309,14 +378,14 @@ vec3 getClouds(
 
 	vec3 cloudPos = vec3(
 		0.0,
-		skyViewPos.y + cloudLayer.altitude,// * clamp01(dot(cloudLayer.plane, sunVector.xz)),
+		skyViewPos.y + cloudLayer.altitude * (dot(viewDir, sunVector) * 0.5 + 0.5),
 		0.0
 	);
 
 	vec3 sunColor = getValFromTLUT(transmittanceLut, cloudPos, sunVector);
 	vec3 moonColor = nightAdjust(getValFromTLUT(transmittanceLut, cloudPos, moonVector));
 
-	vec3 scatteringColor = sunColor + moonColor;
+	vec3 scatteringColor = (sunColor + moonColor) * 2.0;
 	vec3 ambientColor = getSkyColor(
 		vec3(0.0, 1.0, 0.0), 
 		sunTransmittance, 
@@ -326,13 +395,12 @@ vec3 getClouds(
 		skyLutNight
 	);
 
-	ambientColor = saturation(ambientColor, 0.5) * 1.5;
+	float transmittance = cloudsTransmittanceAndScattering.x;
 
 	vec3 scattering = cloudsTransmittanceAndScattering.y * scatteringColor * (
 		4.0 + 10.0 * (getMiePhase(dot(viewDir, sunVector), 0.7) + 0.5 * getMiePhase(dot(viewDir, moonVector), 0.7))
-	) + ambientColor;
+	) + ambientColor * exp(-fbmHash(cloudLayer.plane, 4) * 0.5) * 2.0;
 
-	float transmittance = cloudsTransmittanceAndScattering.x;
 
 	return mix(scattering, skyColor, transmittance);
 }
@@ -380,6 +448,61 @@ vec3 getSkyAndClouds(
 			sunTransmittance,
 			moonTransmittance,
 			getCloudsTransmittanceAndScattering(viewDir, cumulusClouds),
+			cumulusClouds,
+			transmittanceLut,
+			skyLutDay,
+			skyLutNight,
+			color
+		);
+	}
+
+	return color * 0.5;
+}
+
+vec3 getSkyAndClouds(
+	in vec3 viewDir,
+	in vec2 cloudsTransmittanceAndScattering,
+
+	in sampler2D transmittanceLut,
+	in sampler2D skyLutDay,
+	in sampler2D skyLutNight,
+
+	in float sunAmount,
+	in bool renderStars
+) {
+	vec3 sunTransmittance = getValFromTLUT(transmittanceLut, skyViewPos, viewDir);
+	vec3 moonTransmittance = nightAdjust(sunTransmittance);
+
+	vec3 color = getSkyColor(
+		viewDir,
+		sunTransmittance,
+		moonTransmittance,
+		sunAmount,
+		renderStars,
+		skyLutDay,
+		skyLutNight
+	);
+
+	if(frx_worldHasSkylight == 1) {
+		CloudLayer cirrusClouds = createCirrusCloudLayer(viewDir);
+		CloudLayer cumulusClouds = createCumulusCloudLayer(viewDir);
+
+		// color = getClouds(
+		// 	viewDir,
+		// 	sunTransmittance,
+		// 	moonTransmittance,
+		// 	cloudsTransmittanceAndScattering,
+		// 	cirrusClouds,
+		// 	transmittanceLut,
+		// 	skyLutDay,
+		// 	skyLutNight,
+		// 	color
+		// );
+		color = getClouds(
+			viewDir,
+			sunTransmittance,
+			moonTransmittance,
+			cloudsTransmittanceAndScattering,
 			cumulusClouds,
 			transmittanceLut,
 			skyLutDay,

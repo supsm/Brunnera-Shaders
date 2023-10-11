@@ -1,6 +1,5 @@
 #include forgetmenot:shaders/lib/inc/header.glsl
 #include forgetmenot:shaders/lib/inc/sky.glsl
-#include forgetmenot:shaders/lib/inc/fog.glsl
 #include forgetmenot:shaders/lib/inc/cubemap.glsl
 #include forgetmenot:shaders/lib/inc/space.glsl
 #include forgetmenot:shaders/lib/inc/utility.glsl
@@ -9,6 +8,7 @@
 #include forgetmenot:shaders/lib/inc/material.glsl
 #include forgetmenot:shaders/lib/inc/lighting.glsl
 #include forgetmenot:shaders/lib/inc/raytrace.glsl
+#include forgetmenot:shaders/lib/inc/water.glsl
 
 uniform sampler2D u_previous_color;
 
@@ -52,7 +52,7 @@ void insertLayer(inout vec3 background, inout float backgroundDepth, in vec4 for
 }
 
 void main() {
-	init();
+	initGlobals();
 	vec3 viewDir = getViewDir();
 	vec3 tdata = getTimeOfDayFactors();
 
@@ -80,16 +80,19 @@ void main() {
 	weatherColor.rgb = pow(weatherColor.rgb, vec3(2.2));
 	cloudsColor.rgb = pow(cloudsColor.rgb, vec3(2.2));
 
-	Material material = unpackMaterial(samplePacked);
 
 	vec3 sceneSpacePosBack = setupSceneSpacePos(texcoord, particlesDepth);
 	vec3 sceneSpacePos = setupSceneSpacePos(texcoord, translucentDepth);
 
-	float skyboxSharpeningFactor = 4.0 * pow(clamp01(dot(viewDir, frx_skyLightVector)), 8.0);
+	float skyboxSharpeningFactor = 2.0 * pow(clamp01(dot(viewDir, frx_skyLightVector)), 8.0);
 	skyboxSharpeningFactor *= smoothstep(0.0, 100.0, length(sceneSpacePos));
 	skyboxSharpeningFactor = mix(skyboxSharpeningFactor, 0.0, frx_skyLightTransitionFactor);
 
-	vec3 atmosphericColor = textureLod(u_skybox, viewDir, 7.0 - skyboxSharpeningFactor).rgb;
+	vec3 atmosphericColor = textureLod(u_skybox, viewDir, 6.0 - skyboxSharpeningFactor).rgb;
+	vec3 atmosphericColorTop = textureLod(u_skybox, vec3(0.0, 1.0, 0.0), 7).rgb;
+	float atmosphereBrightness = frx_luminance(atmosphericColorTop);
+
+	Material material = unpackMaterial(samplePacked);
 
 	// ----------------------------------------------------------------------------------------------------
 	// Water normals
@@ -106,43 +109,54 @@ void main() {
 			// Math from Balint
 			int face = int(dot(max(material.vertexNormal, 0.0), vec3(FACE_EAST, FACE_UP, FACE_SOUTH)) + dot(max(-material.vertexNormal, 0.0), vec3(FACE_WEST, FACE_DOWN, FACE_NORTH)) + 0.5);
 
-			vec3 worldSpacePos = sceneSpacePos + frx_cameraPos;
-			vec2 uv = frx_faceUv(worldSpacePos, face);
+			vec3 cameraPos = mod(frx_cameraPos, 500.0);
+
+			vec3 worldSpacePos = sceneSpacePos + cameraPos;
+			vec2 uv = 0.3 * frx_faceUv(worldSpacePos, face);
 
 			// Parallaxify
-			uv = parallaxMapping(sceneSpacePos, tbn, uv, smoothHash(uv + fmn_time) * 0.1);
+			ParallaxResult result = waterParallax(tbn, sceneSpacePos, uv);
+			uv = result.coord;
 
-			vec2 waterNoise = vec2(0.0);
-			vec2 waterWindDirection = vec2(fmn_time, fmn_time * 0.25);
-			waterNoise += smoothHashDXY(repeatAndMirrorCoords(rotate2D(uv * vec2(1.5, 0.5) + waterWindDirection, radians( 15.0)) / 250.0) * 250.0) * 0.5;
-			waterNoise += smoothHashDXY(repeatAndMirrorCoords(rotate2D(uv * vec2(1.0, 0.2) + waterWindDirection, radians(-15.0)) / 250.0) * 250.0) * 0.75;
-			waterNoise += smoothHashDXY(repeatAndMirrorCoords((uv * vec2(3.0, 1.0) + 200.0 + waterWindDirection * 4.0) / 250.0) * 250.0) * 0.125;
-			waterNoise += smoothHashDXY(repeatAndMirrorCoords((uv * vec2(5.0, 1.5) + 400.0 + waterWindDirection * 8.0) / 250.0) * 250.0) * 0.065;
-			waterNoise += smoothHashDXY(repeatAndMirrorCoords((uv * vec2(10.0, 1.5) + 600.0 - waterWindDirection) / 250.0) * 250.0) * 0.125;
+			// vec3 parallaxPos = setupViewSpacePos(texcoord, translucentDepth);
+			// parallaxPos.z += result.shiftDistance;
 
-			waterNoise *= pow(dot(-material.vertexNormal, viewDir), 1.0 / 4.0);
-			waterNoise *= 0.1;
+			// parallaxPos = viewSpaceToSceneSpace(parallaxPos);
+
+			// material.fragNormal = normalize(
+			// 	cross(
+			// 		dFdx(parallaxPos),
+			// 		dFdy(parallaxPos)
+			// 	)
+			// );
+
+			//translucentDepth = viewSpaceToScreenSpace(parallaxPos).z;
+
+			vec2 waterNoise = getWaterHeightDXY(uv);
 
 			material.fragNormal = tbn * normalize(
 				cross(vec3(2.0, 0.0, waterNoise.x), vec3(0.0, 2.0, waterNoise.y))
 			);
 		}
 	#endif
+			// fragColor = vec4(material.fragNormal, 1.0);
+			// return;
 
 	// ----------------------------------------------------------------------------------------------------
 	// Refractions
-	vec4 mainColor; 
-	float mainDepth = texture(u_solid_depth, texcoord).r;
+	vec4 solidColor; 
+	float solidDepth = texture(u_solid_depth, texcoord).r;
 
 	float refractedDepthBack = 1.0;
 	float refractedDepthFront = 1.0;
 	
-	if(mainDepth < 1.0 && material.fragNormal != material.vertexNormal) {
+	if(solidDepth < 1.0 && material.fragNormal != material.vertexNormal) {
 		const float angleMultiplier[3] = float[3](
 			1.1, 1.3, 1.5
 		);
 		vec2 refractCoord;
 
+		#define DEPTH_AWARE_REFRACTIONS
 		#ifdef DEPTH_AWARE_REFRACTIONS
 			vec3 crss = normalize(cross(material.fragNormal, material.vertexNormal));
 			float angle = acos(dot(material.fragNormal, material.vertexNormal));
@@ -154,10 +168,10 @@ void main() {
 				refractCoord = mix(
 					texcoord,
 					sceneSpaceToScreenSpace(sceneSpacePosBackRefracted).xy,
-					clamp01(sign(mainDepth - translucentDepth))
+					clamp01(sign(solidDepth - translucentDepth))
 				);
 
-				mainColor[channel] = texture(u_solid_color, refractCoord)[channel];
+				solidColor[channel] = texture(u_solid_color, refractCoord)[channel];
 			}
 		#else
 			vec3 normDiff = material.fragNormal - material.vertexNormal;
@@ -173,25 +187,28 @@ void main() {
 				refractCoord = mix(
 					texcoord,
 					sceneSpaceToScreenSpace(sceneSpacePosBack + viewDirRefracted * normDiffLength * 4.0).xy,
-					clamp01(sign(mainDepth - translucentDepth))
+					clamp01(sign(solidDepth - translucentDepth))
 				);
 
-				mainColor[channel] = texture(u_solid_color, refractCoord)[channel];
+				solidColor[channel] = texture(u_solid_color, refractCoord)[channel];
 			}
 		#endif
 
-		refractedDepthBack = texture(u_translucent_depth, refractCoord).r;
-		refractedDepthFront = texture(u_solid_depth, refractCoord).r;
+		refractedDepthBack = texture(u_solid_depth, refractCoord).r;
+		refractedDepthFront = texture(u_translucent_depth, refractCoord).r;
 
-		mainColor.a = 1.0;
+		solidColor.a = 1.0;
 	} else {
-		mainColor = texture(u_solid_color, texcoord);
+		solidColor = texture(u_solid_color, texcoord);
+
+		refractedDepthBack = solidDepth;
+		refractedDepthFront = translucentDepth;
 	}
 
 	// ----------------------------------------------------------------------------------------------------
 	// Fabulous blending
-	vec3 composite = mainColor.rgb;
-	float compositeDepth = mainDepth;
+	vec3 composite = solidColor.rgb;
+	float compositeDepth = solidDepth;
 
 	// Disable blending on water, because water is blended separately
 	translucentColor.a *= step(material.isWater, 0.5);
@@ -201,55 +218,73 @@ void main() {
 	insertLayer(composite, compositeDepth, entityColor, entityDepth);
 
 	sceneSpacePosBack = setupSceneSpacePos(texcoord, refractedDepthBack);
-	sceneSpacePos = setupSceneSpacePos(texcoord, refractedDepthFront);
+	sceneSpacePos = setupSceneSpacePos(texcoord, compositeDepth);
 
 	// Initialize fog transmittance used for bloomy fog
 	float fogTransmittance = 1.0;
 
 	// ----------------------------------------------------------------------------------------------------
-	// Water blending
-	if(material.isWater > 0.5 || frx_cameraInWater == 1) {
+	// Water effects
+	if(frx_cameraInWater == 1) {
+		float waterFogDistance = length(sceneSpacePos);
+		vec3 waterFogColor = WATER_COLOR;
+
+		composite *= mix(normalize(waterFogColor), vec3(1.0), exp(-waterFogDistance * 0.2));
+		composite = mix(waterFogColor * atmosphereBrightness * 1.5, composite, exp(-waterFogDistance * WATER_DIRT_AMOUNT));
+
+		vec3 refractedViewDir = refract(viewDir, material.fragNormal, 1.33);
+
+		if(solidDepth == 1.0) composite = textureLod(u_skybox, refractedViewDir, 0.0).rgb;
+		if(refractedViewDir.y <= 0.001 && material.isWater > 0.5) {
+			composite = waterFogColor;
+			material.f0 = 0.95;
+		}
+
+		composite = mix(composite, waterFogColor, floor(compositeDepth));
+	} else if(material.isWater > 0.5) {
 		// These should eventually be configurable
-		float waterFogDistance = mix(distance(sceneSpacePosBack, sceneSpacePos), length(sceneSpacePos * 0.3), float(frx_cameraInWater));
-		waterFogDistance = max(waterFogDistance, 0.01);
+		float waterFogDistance = distance(sceneSpacePosBack, sceneSpacePos);
 
-		float sunLightFactor = linearstep(0.0, 0.2, frx_skyLightVector.y);
-
-		vec3 underwaterFogColor = WATER_COLOR * sunLightFactor;
-		underwaterFogColor *= (1.0 + 3.0 * getMiePhase(dot(viewDir, frx_skyLightVector), 0.75) * sunLightFactor);
-		underwaterFogColor = max(underwaterFogColor, vec3(0.01));
-
-		vec3 waterFogColor = mix(translucentColor.rgb, underwaterFogColor, frx_cameraInWater);
+		vec3 waterFogColor = translucentColor.rgb;
 
 		// Water absorption
-		composite *= mix(fNormalize(waterFogColor), vec3(1.0), exp(-waterFogDistance * 0.5));
+		composite *= mix(normalize(waterFogColor), vec3(1.0), exp(-waterFogDistance * 0.5));
 		
 		// Water scattering
 		float waterFogTransmittance = exp(-waterFogDistance * (WATER_DIRT_AMOUNT));
-		
-		if(frx_cameraInFluid == 1) fogTransmittance = min(fogTransmittance, waterFogTransmittance);
-		
-		composite = mix(waterFogColor * max(material.skyLight, frx_smoothedEyeBrightness.y), composite, waterFogTransmittance * 0.99 + 0.01);
+				
+		composite = mix(waterFogColor, composite, waterFogTransmittance * 0.99 + 0.01);
 	}
-	
+
 	// ----------------------------------------------------------------------------------------------------
 	// Reflections
 	if(compositeDepth < 1.0 && (material.roughness < 0.95 || material.f0 > 0.99)) {
 		vec3 reflectColor = vec3(0.0);
-		vec3 reflectance = getReflectance(vec3(material.f0 * material.f0), clamp01(dot(-material.fragNormal, viewDir)));
+		vec3 reflectance = getReflectance(vec3(material.f0 * material.f0), clamp01(dot(-material.fragNormal, viewDir)), 0.0);
 
 		vec3 cleanReflectDir = reflect(viewDir, material.fragNormal);
-		cleanReflectDir = mix(cleanReflectDir, reflect(viewDir, material.vertexNormal), step(dot(cleanReflectDir, material.vertexNormal), 0.0));
 
-		vec3 ambientReflectionColor = textureLod(u_skybox, cleanReflectDir, 7.0 * rcp(inversesqrt(material.roughness))).rgb;
+		float invalidNormal = step(dot(cleanReflectDir, material.vertexNormal), 0.0);
+
+		material.fragNormal = normalize(material.fragNormal + material.vertexNormal * invalidNormal);
+		
+		cleanReflectDir = reflect(viewDir, material.fragNormal);
+		cleanReflectDir = mix(cleanReflectDir, reflect(viewDir, material.vertexNormal), invalidNormal);
+
+		vec3 ambientReflectionColor = WATER_COLOR * atmosphereBrightness;
+		if(frx_cameraInWater == 0) {
+			ambientReflectionColor = textureLod(u_skybox, cleanReflectDir, 7.0 * rcp(inversesqrt(material.roughness))).rgb * material.skyLight;
+		}
 
 		// number of rays to cast depends on roughness (goodbye performance)
 		int numReflectionRays = int(sqrt(material.roughness) * 10.0) + 1;
 		numReflectionRays = min(4, numReflectionRays); // hello performance
 
+		numReflectionRays *= int(step(material.roughness, 0.5));
+
 		float reflectionFactor = 0.0;
 		for(int i = 0; i < numReflectionRays; i++) {
-			vec3 reflectDir = generateCosineVector(cleanReflectDir, material.roughness);
+			vec3 reflectDir = mix(cleanReflectDir, generateCosineVector(material.fragNormal), material.roughness);
 			vec3 viewReflectDir = frx_normalModelMatrix * reflectDir;
 
 			vec3 screenSpacePos = vec3(texcoord, compositeDepth);
@@ -285,9 +320,6 @@ void main() {
 		// Handle sky reflections
 		ambientReflectionColor.rgb *= mix(1.0, pow2(material.vanillaAo) * material.skyLight, material.roughness);
 
-		// blocklight contribution
-		ambientReflectionColor = max(blockLightColor * pow4(material.blockLight) * pow(dot(material.vertexNormal, material.fragNormal), 300.0), ambientReflectionColor.rgb * material.skyLight);
-
 		reflectColor += ambientReflectionColor * (1.0 - reflectionFactor);
 
 		#ifdef REALISTIC_METALS
@@ -297,39 +329,42 @@ void main() {
 		composite = mix(composite, reflectColor, reflectance * step(material.f0, 0.999));
 	}
 
-	float blockDistance = min(512.0, rcp(inversesqrt(dot(sceneSpacePos, sceneSpacePos))));
+	float blockDistance = rcp(inversesqrt(dot(sceneSpacePos, sceneSpacePos)));
+	float fogDistance = min(512.0, blockDistance);
 
 	// ----------------------------------------------------------------------------------------------------
 	// Fog
-	#ifdef FOG
-		if(!isModdedDimension) {
-			if(frx_cameraInFluid == 0) {
-				float undergroundFactor = linearstep(0.0, 0.5, max(frx_smoothedEyeBrightness.y, material.skyLight));
-				undergroundFactor = mix(1.0, undergroundFactor, float(frx_worldHasSkylight));
+	// #ifdef FOG
+	// 	if(!fmn_isModdedDimension) {
+	// 		if(frx_cameraInFluid == 0) {
+	// 			float undergroundFactor = linearstep(0.0, 0.5, max(frx_smoothedEyeBrightness.y, material.skyLight));
+	// 			undergroundFactor = mix(1.0, undergroundFactor, float(frx_worldHasSkylight));
 
-				FogProfile fp = getFogProfile(undergroundFactor);
+	// 			float atmosphericFogTransmittance = exp2(-fogDistance / fmn_atmosphereParams.blocksPerFogUnit * 4.0);
 
-				float atmosphericFogTransmittance = exp2(-blockDistance / 2500.0 * fp.density);
+	// 			vec3 atmosphericFogScattering = atmosphericColor;
+	// 			//if(frx_worldHasSkylight == 1) atmosphericFogScattering *= 4.0;
 
-				vec3 atmosphericFogScattering = atmosphericColor;
-				//if(frx_worldHasSkylight == 1) atmosphericFogScattering *= 4.0;
+	// 			atmosphericFogScattering = mix(caveFogColor, atmosphericFogScattering, undergroundFactor);
 
-				atmosphericFogScattering = mix(caveFogColor, atmosphericFogScattering, undergroundFactor);
+	// 			atmosphericFogTransmittance = mix(atmosphericFogTransmittance, 1.0, floor(compositeDepth));
 
-				atmosphericFogTransmittance = mix(atmosphericFogTransmittance, 1.0, floor(compositeDepth));
+	// 			composite = mix(atmosphericFogScattering, composite, atmosphericFogTransmittance);
 
-				composite = mix(atmosphericFogScattering, composite, atmosphericFogTransmittance);
-			}
-		} else {
-			if(compositeDepth != 1.0) composite = mix(composite, pow(frx_fogColor.rgb, vec3(2.2)), smoothstep(frx_fogStart, frx_fogEnd, length(sceneSpacePos)));
-		}
-	#else
-		//fogTransmittance = 1.0;
-	#endif
+	// 			// Border flog
+	// 			float fogFactor = smoothstep(frx_viewDistance - 24.0, frx_viewDistance - 8.0, blockDistance);
+	// 			composite = mix(composite, textureLod(u_skybox, viewDir, 0.0).rgb, fogFactor * (1.0 - floor(compositeDepth)));
+	// 		}
+	// 	} else {
+	// 		if(compositeDepth != 1.0) composite = mix(composite, pow(frx_fogColor.rgb, vec3(2.2)), smoothstep(frx_fogStart, frx_fogEnd, length(sceneSpacePos)));
+	// 	}
+	// #else
+	// 	//fogTransmittance = 1.0;
+	// #endif
 
 	// ----------------------------------------------------------------------------------------------------
 	// Weather blending
-	composite = mix(composite, weatherColor.rgb * 40.0 * frx_luminance(atmosphericColor), weatherColor.a * step(weatherDepth, compositeDepth) * 0.5);
+	composite = mix(composite, weatherColor.rgb * 10.0 * frx_luminance(atmosphericColor), weatherColor.a * step(weatherDepth, compositeDepth) * 0.5);
 
 
 	// ----------------------------------------------------------------------------------------------------

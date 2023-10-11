@@ -51,49 +51,49 @@
 		{
 			name: "sky_lut_day",
 			lod: 0,
-			width: 200,
-			height: 200,
-			internalFormat: "RGB16",
+			width: 400,
+			height: 400,
+			internalFormat: "RGB16F",
 			pixelFormat: "RGBA",
 			pixelDataType: "UNSIGNED_BYTE",
 			target: "TEXTURE_2D",
 			texParams: [
-				{
-					name: "TEXTURE_MIN_FILTER", val: "LINEAR"
-				}, 
-				{
-					name: "TEXTURE_MAG_FILTER", val: "LINEAR"
-				},
-				{
-					name: "TEXTURE_WRAP_S", val: "CLAMP_TO_EDGE"
-				}, 
-				{
-					name: "TEXTURE_WRAP_T", val: "CLAMP_TO_EDGE"
-				}
+				{name: "TEXTURE_MIN_FILTER", val: "LINEAR"}, 
+				{name: "TEXTURE_MAG_FILTER", val: "LINEAR"},
+				{name: "TEXTURE_WRAP_S", val: "CLAMP_TO_EDGE"}, 
+				{name: "TEXTURE_WRAP_T", val: "CLAMP_TO_EDGE"}
 			]
 		},
 		{
 			name: "sky_lut_night",
 			lod: 0,
-			width: 200,
-			height: 200,
-			internalFormat: "RGB16",
+			width: 400,
+			height: 400,
+			internalFormat: "RGB16F",
 			pixelFormat: "RGBA",
 			pixelDataType: "UNSIGNED_BYTE",
 			target: "TEXTURE_2D",
 			texParams: [
-				{
-					name: "TEXTURE_MIN_FILTER", val: "LINEAR"
-				}, 
-				{
-					name: "TEXTURE_MAG_FILTER", val: "LINEAR"
-				},
-				{
-					name: "TEXTURE_WRAP_S", val: "CLAMP_TO_EDGE"
-				}, 
-				{
-					name: "TEXTURE_WRAP_T", val: "CLAMP_TO_EDGE"
-				}
+				{name: "TEXTURE_MIN_FILTER", val: "LINEAR"}, 
+				{name: "TEXTURE_MAG_FILTER", val: "LINEAR"},
+				{name: "TEXTURE_WRAP_S", val: "CLAMP_TO_EDGE"}, 
+				{name: "TEXTURE_WRAP_T", val: "CLAMP_TO_EDGE"}
+			]
+		},
+		{
+			name: "aerial_perspective",
+			lod: 0,
+			width: 225,
+			height: 225,
+			internalFormat: "R11F_G11F_B10F",
+			pixelFormat: "RGBA",
+			pixelDataType: "UNSIGNED_BYTE",
+			target: "TEXTURE_2D",
+			texParams: [
+				{name: "TEXTURE_MIN_FILTER", val: "LINEAR"}, 
+				{name: "TEXTURE_MAG_FILTER", val: "LINEAR"},
+				{name: "TEXTURE_WRAP_S", val: "CLAMP_TO_EDGE"}, 
+				{name: "TEXTURE_WRAP_T", val: "CLAMP_TO_EDGE"}
 			]
 		},
 		{
@@ -106,21 +106,11 @@
 			height: 64,
 			target: "TEXTURE_CUBE_MAP",
 			texParams: [
-				{
-					name: "TEXTURE_MIN_FILTER", val: "LINEAR"
-				},
-				{
-					name: "TEXTURE_MAG_FILTER", val: "LINEAR"
-				},
-				{
-					name: "TEXTURE_WRAP_S", val: "CLAMP_TO_EDGE"
-				},
-				{
-					name: "TEXTURE_WRAP_T", val: "CLAMP_TO_EDGE"
-				},
-				{
-					name: "TEXTURE_WRAP_R", val: "CLAMP_TO_EDGE"
-				}
+				{name: "TEXTURE_MIN_FILTER", val: "LINEAR"},
+				{name: "TEXTURE_MAG_FILTER", val: "LINEAR"},
+				{name: "TEXTURE_WRAP_S", val: "CLAMP_TO_EDGE"},
+				{name: "TEXTURE_WRAP_T", val: "CLAMP_TO_EDGE"},
+				{name: "TEXTURE_WRAP_R", val: "CLAMP_TO_EDGE"}
 			]
 		},
 		{
@@ -132,21 +122,11 @@
 			size: 128,
 			target: "TEXTURE_CUBE_MAP",
 			texParams: [
-				{
-					name: "TEXTURE_MIN_FILTER", val: "LINEAR_MIPMAP_LINEAR"
-				},
-				{
-					name: "TEXTURE_MAG_FILTER", val: "LINEAR"
-				},
-				{
-					name: "TEXTURE_WRAP_S", val: "CLAMP_TO_EDGE"
-				},
-				{
-					name: "TEXTURE_WRAP_T", val: "CLAMP_TO_EDGE"
-				},
-				{
-					name: "TEXTURE_WRAP_R", val: "CLAMP_TO_EDGE"
-				}
+				{name: "TEXTURE_MIN_FILTER", val: "LINEAR_MIPMAP_LINEAR"},
+				{name: "TEXTURE_MAG_FILTER", val: "LINEAR"},
+				{name: "TEXTURE_WRAP_S", val: "CLAMP_TO_EDGE"},
+				{name: "TEXTURE_WRAP_T", val: "CLAMP_TO_EDGE"},
+				{name: "TEXTURE_WRAP_R", val: "CLAMP_TO_EDGE"}
 			]
 		}
 	]

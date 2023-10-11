@@ -30,7 +30,7 @@ vec4 clamp01(in vec4 x) {
 	return clamp(x, vec4(0.0), vec4(1.0));
 }
 
-// "faster" normalize functions - probably shouldn't be used.
+// "faster" normalize functions - probably shouldn't be used. Tested to have no effect on performance.
 vec2 fNormalize(in vec2 x) {
 	return x * inversesqrt(dot(x, x));
 }
@@ -162,6 +162,10 @@ vec2 repeatAndMirrorCoords(vec2 uv) {
 
 vec3 saturation(in vec3 color, in float amount) {
 	return mix(vec3(frx_luminance(color)), color, amount);
+}
+
+float contrast(in float value, float contrast) {
+	return (value - 0.5) * contrast + 0.5;
 }
 vec3 contrast(in vec3 color, float contrast) {
 	return (color - 0.5) * contrast + 0.5;
