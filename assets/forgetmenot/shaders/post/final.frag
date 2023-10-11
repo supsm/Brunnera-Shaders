@@ -135,6 +135,21 @@ vec3 lottes(vec3 x, float whitePoint) {
 	return pow(x, a) / (pow(x, a * d) * b + c);
 }
 
+float tonemap_approx(float x,
+	float a, float b, float c, float d,
+	float e, float f, float g, float h, float i)
+{
+	return (a * intpow(x, 4) + b * intpow(x, 3) + c * intpow(x, 2) + d * x) /
+		(e * intpow(x, 4) + f * intpow(x, 3) + g * intpow(x, 2) + h * x + i);
+}
+float tonemap_approx(float x,
+	float a, float b, float c, float d, float e,
+	float f, float g, float h, float i, float j, float k)
+{
+	return (a * intpow(x, 5) + b * intpow(x, 4) + c * intpow(x, 3) + d * intpow(x, 2) + e * x) /
+		(f * intpow(x, 5) + g * intpow(x, 4) + h * intpow(x, 3) + i * intpow(x, 2) + j * x + k);
+}
+
 void main() {
 	initGlobals();
 
@@ -194,25 +209,50 @@ void main() {
 	//finalColor = lottes(finalColor, 8);
 	// linear
 	//finalColor = clamp(finalColor, vec3(0), vec3(1));
-	// dscs315-1
+	// dscs315-1 (4/4 approx)
 	float white_point = expo * 1600;
 	float x = clamp(finalColor.r, 0, white_point) / white_point;
-	finalColor.r = (-10.54 * intpow(x, 4) + 19.27 * intpow(x, 3) - 5.93 * intpow(x, 2) + 0.79 * x) /
-		(-8.86 * intpow(x, 4) + 14.15 * intpow(x, 3) - 1.35 * intpow(x, 2) - 0.52 * x + 0.17);
+	finalColor.r = tonemap_approx(x, -10.54, 19.27, -5.93, 0.79, -8.86, 14.15, -1.35, -0.52, 0.17);
 	x = clamp(finalColor.g, 0, white_point) / white_point;
-	finalColor.g = (-36.77 * intpow(x, 4) + 12.76 * intpow(x, 3) - 1.46 * intpow(x, 2)) /
-		(-31 * intpow(x, 4) + 4.82 * intpow(x, 3) + 0.87 * intpow(x, 2) - 0.25 * x);
+	finalColor.g = tonemap_approx(x, -36.77, 12.76, -1.46, 0, -31, 4.82, 0.87, -0.25, 0);
 	x = clamp(finalColor.b, 0, white_point) / white_point;
-	finalColor.b = (-37.3 * intpow(x, 4) + 13.34 * intpow(x, 3) - 1.63 * intpow(x, 2)) /
-		(-31.03 * intpow(x, 4) + 4.62 * intpow(x, 3) + 1.05 * intpow(x, 2) - 0.31 * x);
+	finalColor.b = tonemap_approx(x, -37.3, 13.34, -1.63, 0, -31.03, 4.62, 1.05, -0.31, 0);
 	finalColor = clamp01(finalColor);
+	// ektachrome 100 plus (5/5 approx)
+	/*float white_point = expo * 1600;
+	float x = clamp(finalColor.r, 0, white_point) / white_point;
+	finalColor.r = tonemap_approx(x, 4737.11, -635.97, 6.04, 4.89, 0.24, 4771.84, -765.86, 95.52, 21.02, -6.19, 0.61);
+	x = clamp(finalColor.g, 0, white_point) / white_point;
+	finalColor.g = tonemap_approx(x, 1586.67, 2935.85, 1315.78, 73.41, 7.05, 447.01, 5989.87, -1850.5, 1507.16, -206.73, 32.78);
+	x = clamp(finalColor.b, 0, white_point) / white_point;
+	finalColor.b = tonemap_approx(x, 5832.11, -2701.59, 234.58, 0.07, 1.28, 4720.28, -1011.13, -396.94, 194.41, -36.87, 4.34);
+	finalColor = clamp01(finalColor);*/
+	// gold 200 (4/4 approx)
+	/*float white_point = expo * 1600;
+	float x = clamp(finalColor.r, 0, white_point) / white_point;
+	finalColor.r = tonemap_approx(x, -1446.21, 339.41, -71.10, -4.44, -958.53, -268.05, 80.64, -32.42, -0.57);
+	x = clamp(finalColor.g, 0, white_point) / white_point;
+	finalColor.g = tonemap_approx(x, -1627.54, 1106.05, -245.18, -31.58, -901.04, -157.98, 434.21, -166.83, -5.76);
+	x = clamp(finalColor.b, 0, white_point) / white_point;
+	finalColor.b = tonemap_approx(x, -1606.57, 726.14, -200.30, -13.98, -840.76, -410.04, 282.62, -119.58, -3.82);
+	finalColor = clamp01(finalColor);*/
+	// portra 400 NC (4/4 approx)
+	/*float white_point = expo * 1600;
+	float x = clamp(finalColor.r, 0, white_point) / white_point;
+	finalColor.r = tonemap_approx(x, 1968.8, 962.30, 43.62, 0.28, 696.17, 1965.73, 503.28, 6.11, 0.02);
+	x = clamp(finalColor.g, 0, white_point) / white_point;
+	finalColor.g = tonemap_approx(x, 3.49, -1.76, -1.81, -0.06, 1.08, 2.57, -3.19, -0.58, -0.01);
+	x = clamp(finalColor.b, 0, white_point) / white_point;
+	finalColor.b = tonemap_approx(x, 2.96, -1.16, -1.98, -0.07, 0.59, 2.94, -2.97, -0.80, -0.01);
+	finalColor = clamp01(finalColor);*/
+
 
 	// arbitrary units
 	float iso = sqrt(expo);
 
-	// film grain (subtractive, monochromatic)
+	// film grain (multiplicative, monochromatic)
 	// brightness simulates grain size, which is affected by iso
-	//finalColor -= vec3(max(0, normal_distribution(vec2(randomFloat(), randomFloat()), max(-0.15, 0.02 / iso - 1), 0.1).x)) * float(randomFloat() > 0.4);
+	//finalColor *= 1 - max(0, normal_distribution(vec2(randomFloat(), randomFloat()), 0, min(0.5, 0.005 / iso)).x) * float(randomFloat() > 0.2);
 	//finalColor = clamp01(finalColor);
 
 	// digital noise (additive and subtractive, per-channel)
