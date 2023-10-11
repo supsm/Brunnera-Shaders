@@ -182,9 +182,9 @@ vec3 basicLighting(
 	totalLighting += directLighting + ambientLighting;
 	totalLighting = mix(totalLighting, vec3(frx_luminance(totalLighting)), isWater);
 
-	if(AMBIENT_BRIGHTNESS != 0.0) {
-		totalLighting = max(totalLighting, vec3(0.2) * exp(-length((sceneSpacePos + frx_cameraPos - frx_eyePos - vec3(0.0, 1.0, 0.0)) * 0.75)));
-	}
+	//if(AMBIENT_BRIGHTNESS != 0.0) {
+	//	totalLighting = max(totalLighting, vec3(0.2) * exp(-length((sceneSpacePos + frx_cameraPos - frx_eyePos - vec3(0.0, 1.0, 0.0)) * 0.75)));
+	//}
 
 	// Night vision
 	totalLighting = mix(totalLighting, max(totalLighting, normalize(totalLighting) * vanillaAo), nightVisionFactor);

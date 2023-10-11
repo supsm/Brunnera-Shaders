@@ -25,7 +25,8 @@
 			fragmentSource: "forgetmenot:shaders/post/exposure.frag",
 			samplers: [
 				"u_color",
-				"u_previous"
+				"u_previous",
+				"u_precise_uniforms"
 			]
 		},
 		{
@@ -63,8 +64,17 @@
 			fragmentSource: "forgetmenot:shaders/post/final.frag",
 			samplers: [
 				"u_color",
-				"u_exposure"
+				"u_exposure",
+				"u_depth",
+				"u_hand_depth",
+				"u_precise_uniforms"
 			]
-		}		
+		},
+		{
+			name: "precise_uniforms",
+			vertexSource: "forgetmenot:shaders/post/frame_full.vert",
+			fragmentSource: "forgetmenot:shaders/post/precise_uniforms.frag",
+			samplers: []
+		}
 	]
 }

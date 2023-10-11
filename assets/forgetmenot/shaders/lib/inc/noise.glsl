@@ -367,3 +367,13 @@ vec2 fbmDXY(in vec2 uv, int octaves, float t) {
 vec2 fbmDXY(in vec2 uv, int octaves) {
 	return fbmDXY(uv, octaves, 0.0);
 }
+
+// make uniform distribution normal
+// algorithm requires 2 random numbers, hence vec2 instead of float
+// x should be (0, 1)
+vec2 normal_distribution(vec2 x, float mean, float stddev)
+{
+	return vec2(
+		stddev * sqrt(-2 * log(x.x)) * cos(2 * PI * x.y) + mean,
+		stddev * sqrt(-2 * log(x.x)) * sin(2 * PI * x.y) + mean);
+}

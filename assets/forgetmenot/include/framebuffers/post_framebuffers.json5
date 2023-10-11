@@ -167,6 +167,14 @@
 					image: "final"
 				}
 			]
+		},
+		{
+			name: "precise_uniforms",
+			colorAttachments: [
+				{
+					image: "precise_uniforms"
+				}
+			]
 		}
 	]
 }
