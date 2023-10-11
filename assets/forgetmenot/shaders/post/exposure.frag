@@ -9,7 +9,7 @@ in vec2 texcoord;
 layout(location = 0) out float avgLuminance;
 
 void main() {
-	init();
+	initGlobals();
 
 	avgLuminance = 0.0;
 	const int luminanceLod = 7;

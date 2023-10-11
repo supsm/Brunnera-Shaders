@@ -7,7 +7,11 @@
 	rainSmoothingFrames: 250,
 	thunderSmoothingFrames: 500,
 	enablePBR: true,
-	runVanillaClear: false,
+	runVanillaClear: true,
+
+	coloredLights: {
+		useOcclusionData: true
+	},
 
 	include: [
 		"forgetmenot:include/pipeline/options.json5",

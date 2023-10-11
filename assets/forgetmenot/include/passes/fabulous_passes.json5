@@ -54,8 +54,61 @@
 					"transmittance_lut",
 					"sky_lut_day",
 					"sky_lut_night",
+
+					"solid_depth"
 				],
 				lod: 0
+			},
+			{
+				name: "rtao",
+				program: "rtao",
+				framebuffer: "rtao",
+				samplerImages: [
+					"solid_depth",
+					"solid_data",
+					"frex:textures/auto/colored_lights",
+
+					"shadow_map",
+					"shadow_map",
+
+					"rtao_copy", // Previous rtao
+					"depth_copy", // Contains previous solid depth
+					"normal_copy", // Contains previous normals
+				],
+				toggleConfig: "rtao"
+			},
+			{
+				name: "rtao_copy",
+				program: "rtao_copy",
+				framebuffer: "rtao_copy",
+				samplerImages: [
+					"rtao",
+					"solid_depth",
+					"solid_data",
+				],
+				toggleConfig: "rtao"
+			},
+			{
+				name: "rtao_filter_0",
+				program: "rtao_filter",
+				framebuffer: "rtao_filter",
+				samplerImages: [
+					"rtao",
+					"solid_depth",
+					"vertex_normal"
+				],
+				toggleConfig: "rtao"
+			},
+			{
+				name: "rtao_filter_1",
+				program: "rtao_filter",
+				framebuffer: "rtao",
+				samplerImages: [
+					"rtao_filter",
+					"solid_depth",
+					"vertex_normal"
+				],
+				toggleConfig: "rtao"
 			},
 			{
 				name: "deferred_solid",
@@ -65,7 +118,7 @@
 					"solid_color",
 					"solid_data",
 					"solid_depth",
-					"ssao",
+					"rtao",
 
 					"shadow_map",
 					"shadow_map",
@@ -73,9 +126,12 @@
 					"skybox",
 
 					"transmittance_lut",
+					"multiscattering_lut",
 					"sky_display",
 
-					"smooth_uniforms"
+					"smooth_uniforms",
+
+					"frex:textures/auto/colored_lights"
 				]
 			},
 			{
@@ -108,12 +164,15 @@
 				]
 			},
 			{
-				name: "motion_blur_and_copy",
-				program: "motion_blur",
+				name: "post_sort",
+				program: "post_sort",
 				framebuffer: "copy_to_main",
 				samplerImages: [
 					"sort",
-					"translucent_depth"
+					"composite_depth",
+
+					"aerial_perspective",
+					"skybox"
 				]
 			},
 			{

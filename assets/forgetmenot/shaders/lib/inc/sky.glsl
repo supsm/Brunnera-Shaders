@@ -8,46 +8,70 @@
 const vec3 moonFlux = vec3(0.56, 0.8, 1.1);
 
 vec3 nightAdjust(in vec3 color) {
-	return mix(vec3(frx_luminance(color)) * moonFlux, color, 0.05) * 0.075;
-} 
+	return color * 0.02;//mix(vec3(frx_luminance(color)) * moonFlux, color, 0.05) * 0.075;
+}
 
-// Units are in megameters.
-const float groundRadiusMM = 6.360;
-const float atmosphereRadiusMM = 6.460;
+#define ATMOSPHERE_EARTH 0
+#define ATMOSPHERE_MARS 1
+#define ATMOSPHERE_
+#define ATMOSPHERE_PRESET ATMOSPHERE_EARTH
+
+#if ATMOSPHERE_PRESET == ATMOSPHERE_EARTH
+	// Units are in megameters.
+	const float groundRadiusMM = 6.360;
+	const float atmosphereRadiusMM = 6.460;
+
+	const vec3 groundAlbedo = vec3(0.0);
+
+	// Units are per-megameter
+	const vec3 rayleighScatteringBase = vec3(5.802, 13.558, 33.1);
+	const float rayleighAbsorptionBase = 0.0;
+
+	const float turbidity = 1.0;
+
+	const float mieScatteringBase = 25.996 * turbidity;
+	const float mieAbsorptionBase = 4.4;
+
+	const vec3 ozoneAbsorptionBase = vec3(0.650, 1.881, 0.085);
+#elif ATMOSPHERE_PRESET == ATMOSPHERE_MARS
+	// Units are in megameters.
+	const float groundRadiusMM = 3.376;
+	const float atmosphereRadiusMM = groundRadiusMM + 0.08;
+
+	const vec3 groundAlbedo = vec3(0.840, 0.604, 0.404) * 0.3;
+
+	// Units are per-megameter
+	const vec3 rayleighScatteringBase = vec3(33, 25, 10);
+	const float rayleighAbsorptionBase = 0.0;
+
+	const float mieScatteringBase = 50.0;
+	const float mieAbsorptionBase = 4.4;
+
+	const vec3 ozoneAbsorptionBase = vec3(0.3, 0.6, 0.9);
+#endif
 
 // 500M above the ground.
 const vec3 skyViewPos = vec3(0.0, groundRadiusMM + 0.0005, 0.0);
 
-const vec2 tLUTRes = vec2(256.0, 64.0);
-const vec2 msLUTRes = vec2(32.0, 32.0);
-// Doubled the vertical skyLUT res from the paper, looks way
-// better for sunrise.
-const vec2 skyLUTRes = vec2(200.0, 200.0);
+// Phase function from Jessie
+// https://www.patreon.com/user?u=49201970
+float kleinNishinaPhase(float cosTheta, float g) {
+	float e = 1.0;
+	for (int i = 0; i < 8; ++i) {
+		float gFromE = 1.0 / e - 2.0 / log(2.0 * e + 1.0) + 1.0;
+		float deriv = 4.0 / ((2.0 * e + 1.0) * pow2(log(2.0 * e + 1.0))) - 1.0 / pow2(e);
+		if (abs(deriv) < 0.00000001) break;
+		e = e - (gFromE - g) / deriv;
+	}
 
-const vec3 groundAlbedo = vec3(0.0);
-
-// These are per megameter.
-const vec3 rayleighScatteringBase = vec3(5.802, 13.558, 33.1);
-const float rayleighAbsorptionBase = 0.0;
-
-const float mieScatteringBase = 25.996;
-const float mieAbsorptionBase = 4.4;
-
-const vec3 ozoneAbsorptionBase = vec3(0.650, 1.881, 0.085);
+	return e / (2.0 * PI * (e * (1.0 - cosTheta) + 1.0) * log(2.0 * e + 1.0));
+}
 
 float getMiePhase(float cosTheta) {
-	const float g = 0.8;
-	
-	float num = (1.0 - g * g) * (1.0 + cosTheta * cosTheta);
-	float denom = (2.0 + g * g) * pow((1.0 + g * g - 2.0 * g * cosTheta), 1.5);
-	
-	return 0.11936620732 * num / denom;
+	return kleinNishinaPhase(cosTheta, 0.76385);
 }
 float getMiePhase(float cosTheta, float g) {	
-	float num = (1.0 - g * g) * (1.0 + cosTheta * cosTheta);
-	float denom = (2.0 + g * g) * pow((1.0 + g * g - 2.0 * g * cosTheta), 1.5);
-	
-	return 0.11936620732 * num / denom;
+	return kleinNishinaPhase(cosTheta, g);
 }
 
 float getRayleighPhase(float cosTheta) {
@@ -99,18 +123,18 @@ vec3 getValFromTLUT(sampler2D tex, vec3 pos, vec3 sunDir) {
 	float height = length(pos);
 	vec3 up = pos / height;
 	float sunCosZenithAngle = dot(sunDir, up);
-	vec2 uv = vec2(tLUTRes.x * clamp(0.5 + 0.5 * sunCosZenithAngle, 0.0, 1.0),
-				tLUTRes.y * max(0.0, min(1.0, (height - groundRadiusMM) / (atmosphereRadiusMM - groundRadiusMM))));
-	uv /= tLUTRes;
+	vec2 uv = vec2(clamp(0.5 + 0.5 * sunCosZenithAngle, 0.0, 1.0),
+				max(0.0, min(1.0, (height - groundRadiusMM) / (atmosphereRadiusMM - groundRadiusMM))));
+				
 	return texture(tex, uv).rgb;
 }
 vec3 getValFromMultiScattLUT(sampler2D tex, vec3 pos, vec3 sunDir) {
 	float height = length(pos);
 	vec3 up = pos / height;
 	float sunCosZenithAngle = dot(sunDir, up);
-	vec2 uv = vec2(msLUTRes.x * clamp(0.5 + 0.5 * sunCosZenithAngle, 0.0, 1.0),
-				msLUTRes.y * max(0.0, min(1.0, (height - groundRadiusMM) / (atmosphereRadiusMM - groundRadiusMM))));
-	uv /= msLUTRes;
+	vec2 uv = vec2(clamp(0.5 + 0.5 * sunCosZenithAngle, 0.0, 1.0),
+				max(0.0, min(1.0, (height - groundRadiusMM) / (atmosphereRadiusMM - groundRadiusMM))));
+	
 	return texture(tex, uv).rgb;
 }
 
@@ -123,6 +147,7 @@ vec3 raymarchScattering(
 	vec3 sunDir,
 	float tMax,
 	float numSteps,
+	float mieScatteringAmount,
 	sampler2D transmittanceLut,
 	sampler2D multiscatteringLut
 ) {
@@ -152,7 +177,7 @@ vec3 raymarchScattering(
 		
 		vec3 rayleighInScattering = rayleighScattering*(rayleighPhaseValue*sunTransmittance + psiMS);
 		vec3 mieInScattering = mieScattering*(miePhaseValue*sunTransmittance + psiMS);
-		vec3 inScattering = (rayleighInScattering + mieInScattering);
+		vec3 inScattering = (rayleighInScattering + mieInScattering * mieScatteringAmount);
 
 		// Integrated scattering within path segment.
 		vec3 scatteringIntegral = (inScattering - inScattering * sampleTransmittance) / extinction;
@@ -162,6 +187,27 @@ vec3 raymarchScattering(
 		transmittance *= sampleTransmittance;
 	}
 	return lum;
+}
+
+vec3 raymarchScattering(
+	vec3 pos, 
+	vec3 rayDir, 
+	vec3 sunDir,
+	float tMax,
+	float numSteps,
+	sampler2D transmittanceLut,
+	sampler2D multiscatteringLut
+) {
+	return raymarchScattering(
+		pos, 
+		rayDir, 
+		sunDir,
+		tMax,
+		numSteps,
+		1.0,
+		transmittanceLut,
+		multiscatteringLut
+	);
 }
 
 vec3 getValFromSkyLUT(vec3 rayDir, vec3 sunDir, sampler2D skyLut) {

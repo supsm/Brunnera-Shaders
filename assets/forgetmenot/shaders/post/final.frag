@@ -1,4 +1,5 @@
 #include forgetmenot:shaders/lib/inc/header.glsl 
+#include forgetmenot:shaders/lib/inc/exposure.glsl 
 #include forgetmenot:shaders/lib/inc/noise.glsl 
 
 uniform sampler2D u_color;
@@ -10,59 +11,6 @@ in vec2 texcoord;
 in float exposure;
 
 layout(location = 0) out vec4 fragColor;
-
-/*struct ExposureProfile {
-	float bias;
-	float minExposure;
-	float maxExposure;
-	float exposureMultiplier;
-};
-
-ExposureProfile getOverworldExposureProfile() {
-	return ExposureProfile(0.25, 0.9, 1.7, 0.75);
-}
-ExposureProfile getNetherExposureProfile() {
-	return ExposureProfile(0.2, 1.5, 2.0, 1.0);
-}
-ExposureProfile getEndExposureProfile() {
-	return ExposureProfile(0.2, 1.0, 1.4, 1.5);
-}
-
-ExposureProfile getExposureProfile() {
-	if(frx_worldIsNether == 1) return getNetherExposureProfile();
-	if(frx_worldIsEnd == 1) return getEndExposureProfile();
-	return getOverworldExposureProfile();
-}
-
-float getExposureValue(const in ExposureProfile ep, const in float luminance) {
-	float ev100 = log2(luminance * 100.0 * ep.bias / 12.5);
-	float exposureValue = 1.0 / (1.2 * exp2(ev100));
-
-	return clamp(exposureValue, ep.minExposure, ep.maxExposure);
-}
-float getExposureValue(const in float luminance) {
-	return getExposureValue(getExposureProfile(), luminance);
-}
-float getExposureValue() {
-	return getExposureValue(exposure);
-}
-
-vec3 tonemap(vec3 color) {
-	float l = length(color);
-
-	color /= l;
-	color *= pow(l, 1.1);
-
-	float exposureBias = 1.;
-	color *= exposureBias;
-
-	vec3 tmColor =  1.0 - exp(-color);
-
-	tmColor = contrast(tmColor, 1.3);
-//	tmColor = saturation(tmColor, 1.15);
-
-	return tmColor;
-}*/
 
 vec3 intpow(vec3 x, int exponent)
 {
@@ -168,8 +116,28 @@ vec4 sample_gaussian(vec2 center, float stddev, float kernel_size_stddevs = 2, v
 	return vec4(sum / mult_sum, mult_sum);
 }
 
+// Lottes 2016, "Advanced Techniques and Optimization of HDR Color Pipelines"
+vec3 lottes(vec3 x, float whitePoint) {
+	const vec3 a = vec3(1.6);
+	const vec3 d = vec3(0.977);
+	 
+	vec3 hdrMax = vec3(whitePoint);
+	
+	const vec3 midIn = vec3(0.18);
+	const vec3 midOut = vec3(0.267);
+
+	vec3 b =
+		(-pow(midIn, a) + pow(hdrMax, a) * midOut) /
+		((pow(hdrMax, a * d) - pow(midIn, a * d)) * midOut);
+	vec3 c =
+		(pow(hdrMax, a * d) * pow(midIn, a) - pow(hdrMax, a) * pow(midIn, a * d) * midOut) /
+		((pow(hdrMax, a * d) - pow(midIn, a * d)) * midOut);
+
+	return pow(x, a) / (pow(x, a * d) * b + c);
+}
+
 void main() {
-	init();
+	initGlobals();
 
 	// TODO: don't instantly change focus, make it transition somewhat slowly
 	float focus_depth = texture(u_depth, vec2(0.5)).x;
@@ -205,21 +173,6 @@ void main() {
 	color.g = sample_gaussian(texcoord * coord_mults.g + lat_focus_err.g, axi_focus_err.g, 2)).g;
 	color.b = sample_gaussian(texcoord * coord_mults.b + lat_focus_err.b, axi_focus_err.b, 2)).b;*/
 
-	#ifdef LSD_MODE
-		vec2 noise = vec2(smoothHash(texcoord * 30.0 + frx_renderSeconds * 0.1), smoothHash(texcoord * 30.0 + 1000.0 - frx_renderSeconds * 0.1)) * 0.005;
-
-		#define texcoord (texcoord+noise)
-		color.r = frx_sample13(u_color, texcoord + 0.01 * vec2(sin(frx_renderSeconds), cos(frx_renderSeconds)), 1.0 / frxu_size).r;
-		color.g = frx_sample13(u_color, texcoord + 0.01 * vec2(2.0 * -sin(frx_renderSeconds + 50.0), cos(frx_renderSeconds + 50.0)), 1.0 / frxu_size).g;
-		color.b = frx_sample13(u_color, texcoord + 0.01 * vec2(sin(frx_renderSeconds - 50.0), 2.0 * -cos(frx_renderSeconds - 50.0)), 1.0 / frxu_size).b;
-	#endif
-
-	vec3 finalColor = color.rgb;
-
-	// Purkinje effect
-	//float purkinjeFactor = clamp01(1.0 - exp2(-frx_luminance(finalColor * 40.0)));
-	//finalColor = mix(saturation(finalColor, 0.0) * vec3(0.5, 1.2, 1.8) + 0.005, finalColor, purkinjeFactor);
-
 	float expo = clamp(exposure, 0.0003, 0.002);
 
 	// aces tonemap
@@ -236,10 +189,11 @@ void main() {
 	//finalColor = finalColor / (finalColor + vec3(1));
 	// new lumi
 	//finalColor = -exp(0.69314717 - 1.386294 * finalColor) * 0.5 + 1;
+	// lottes
+	//finalColor = lottes(finalColor, 8);
 	// linear
 	//finalColor = clamp(finalColor, vec3(0), vec3(1));
 	// dscs315-1
-	//*
 	float white_point = expo * 1600;
 	float x = clamp(finalColor.r, 0, white_point) / white_point;
 	finalColor.r = (-10.54 * intpow(x, 4) + 19.27 * intpow(x, 3) - 5.93 * intpow(x, 2) + 0.79 * x) /
@@ -250,7 +204,7 @@ void main() {
 	x = clamp(finalColor.b, 0, white_point) / white_point;
 	finalColor.b = (-37.3 * intpow(x, 4) + 13.34 * intpow(x, 3) - 1.63 * intpow(x, 2)) /
 		(-31.03 * intpow(x, 4) + 4.62 * intpow(x, 3) + 1.05 * intpow(x, 2) - 0.31 * x);
-	finalColor = clamp01(finalColor); //*/
+	finalColor = clamp01(finalColor);
 
 	// arbitrary units
 	float iso = sqrt(expo);
@@ -269,5 +223,5 @@ void main() {
 	//const int bitDepth = 256;
 	//finalColor = round(finalColor * bitDepth) / bitDepth;
 
-	fragColor = vec4(finalColor, 1.0);
+	fragColor = vec4(color, 1.0);
 }

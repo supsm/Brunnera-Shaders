@@ -5,9 +5,9 @@
 			categoryKey: "config.forgetmenot.category.atmosphere",
 			elements: {
 				sun_brightness: {
-					default: 8.0,
+					default: 64.0,
 					min: 0.0,
-					max: 64.0,
+					max: 256.0,
 					nameKey: "config.forgetmenot.name.sun_brightness",
 					descriptionKey: "config.forgetmenot.desc.sun_brightness"
 				},
@@ -22,6 +22,13 @@
 					default: true,
 					nameKey: "config.forgetmenot.name.fog",
 					descriptionKey: "config.forgetmenot.desc.fog"
+				},
+				fog_mie_amount: {
+					default: 0.0,
+					min: 0.0,
+					max: 1.0,
+					nameKey: "config.forgetmenot.name.fog_mie_amount",
+					descriptionKey: "config.forgetmenot.desc.fog_mie_amount"
 				},
 			}
 		},
@@ -58,6 +65,16 @@
 					nameKey: "config.forgetmenot.name.curl_noise",
 					descriptionKey: "config.forgetmenot.desc.curl_noise"
 				},
+				clouds_contribute_to_light: {
+					default: true,
+					nameKey: "config.forgetmenot.name.clouds_contribute_to_light",
+					descriptionKey: "config.forgetmenot.desc.clouds_contribute_to_light"
+				},
+				cloud_shadows: {
+					default: false,
+					nameKey: "config.forgetmenot.name.cloud_shadows",
+					descriptionKey: "config.forgetmenot.desc.cloud_shadows"
+				},
 			}
 		},
 		{
@@ -83,8 +100,15 @@
 					nameKey: "config.forgetmenot.name.blocklight_warmth",
 					descriptionKey: "config.forgetmenot.desc.blocklight_warmth"
 				},
+				blocklight_brightness: {
+					default: 1.0,
+					min: 0.0,
+					max: 4.0,
+					nameKey: "config.forgetmenot.name.blocklight_brightness",
+					descriptionKey: "config.forgetmenot.desc.blocklight_brightness"
+				},
 				ambient_brightness: {
-					default: 0.02,
+					default: 0.005,
 					min: 0.0,
 					max: 1.0,
 					nameKey: "config.forgetmenot.name.ambient_brightness",
@@ -111,8 +135,13 @@
 					nameKey: "config.forgetmenot.name.rtao",
 					descriptionKey: "config.forgetmenot.desc.rtao"
 				},
+				indirect_sunlight: {
+					default: false,
+					nameKey: "config.forgetmenot.name.indirect_sunlight",
+					descriptionKey: "config.forgetmenot.desc.indirect_sunlight"
+				},
 				rtao_strength: {
-					default: 0.5,
+					default: 1.0,
 					min: 0.0,
 					max: 1.0,
 					nameKey: "config.forgetmenot.name.rtao_strength",
@@ -144,7 +173,7 @@
 					descriptionKey: "config.forgetmenot.desc.realistic_water"
 				},
 				water_dirt_amount: {
-					default: 0.15,
+					default: 0.04,
 					min: 0.01,
 					max: 1.0,
 					nameKey: "config.forgetmenot.name.water_dirt_amount",
@@ -165,7 +194,7 @@
 					descriptionKey: "config.forgetmenot.desc.water_color_g"
 				},
 				water_color_b: {
-					default: 0.25,
+					default: 0.275,
 					min: 0.0,
 					max: 1.0,
 					nameKey: "config.forgetmenot.name.water_color_b",
@@ -182,10 +211,195 @@
 					nameKey: "config.forgetmenot.name.enable_bloom",
 					descriptionKey: "config.forgetmenot.desc.enable_bloom"
 				},
-				motion_blur: {
+				// motion_blur: {
+				// 	default: false,
+				// 	nameKey: "config.forgetmenot.name.motion_blur",
+				// 	descriptionKey: "config.forgetmenot.desc.motion_blur"
+				// },
+				aces_tonemap: {
 					default: false,
-					nameKey: "config.forgetmenot.name.motion_blur",
-					descriptionKey: "config.forgetmenot.desc.motion_blur"
+					nameKey: "config.forgetmenot.name.aces_tonemap",
+					descriptionKey: "config.forgetmenot.desc.aces_tonemap"
+				},
+			}
+		},
+		{
+			includeToken: "forgetmenot:advanced_camera",
+			categoryKey: "config.forgetmenot.category.advanced_camera",
+			elements: {
+				enable_post_processing: {
+					default: true,
+					nameKey: "config.forgetmenot.name.enable_post_processing",
+					descriptionKey: "config.forgetmenot.desc.enable_post_processing"
+				},
+				camera_preset: {
+					default: "none",
+					choices: ["none", "moody"],
+					enum: true,
+					prefix: "preset_",
+					nameKey: "config.forgetmenot.name.camera_preset",
+					descriptionKey: "config.forgetmenot.desc.camera_preset"
+				},
+				purkinje_amount: {
+					default: 1.0,
+					min: 0.0,
+					max: 1.0,
+					nameKey: "config.forgetmenot.name.purkinje_amount",
+					descriptionKey: "config.forgetmenot.desc.purkinje_amount"
+				},
+				purkinje_lift: {
+					default: 0.0,
+					min: 0.0,
+					max: 0.3,
+					nameKey: "config.forgetmenot.name.purkinje_lift",
+					descriptionKey: "config.forgetmenot.desc.purkinje_lift"
+				},
+				saturation: {
+					default: 1.0,
+					min: 0.0,
+					max: 2.0,
+					nameKey: "config.forgetmenot.name.saturation",
+					descriptionKey: "config.forgetmenot.desc.saturation"
+				},
+				contrast: {
+					default: 1.0,
+					min: 0.0,
+					max: 2.0,
+					nameKey: "config.forgetmenot.name.contrast",
+					descriptionKey: "config.forgetmenot.desc.contrast"
+				},
+				vibrance: {
+					default: 1.0,
+					min: 0.0,
+					max: 2.0,
+					nameKey: "config.forgetmenot.name.vibrance",
+					descriptionKey: "config.forgetmenot.desc.vibrance"
+				},
+				lift_r: {
+					default: 0.0,
+					min: -1.0,
+					max: 1.0,
+					nameKey: "config.forgetmenot.name.lift_r",
+					descriptionKey: "config.forgetmenot.desc.lift_r"
+				},
+				lift_g: {
+					default: 0.0,
+					min: -1.0,
+					max: 1.0,
+					nameKey: "config.forgetmenot.name.lift_g",
+					descriptionKey: "config.forgetmenot.desc.lift_g"
+				},
+				lift_b: {
+					default: 0.0,
+					min: -1.0,
+					max: 1.0,
+					nameKey: "config.forgetmenot.name.lift_b",
+					descriptionKey: "config.forgetmenot.desc.lift_b"
+				},
+				gamma_r: {
+					default: 1.0,
+					min: 0.001,
+					max: 2.0,
+					nameKey: "config.forgetmenot.name.gamma_r",
+					descriptionKey: "config.forgetmenot.desc.gamma_r"
+				},
+				gamma_g: {
+					default: 1.0,
+					min: 0.001,
+					max: 2.0,
+					nameKey: "config.forgetmenot.name.gamma_g",
+					descriptionKey: "config.forgetmenot.desc.gamma_g"
+				},
+				gamma_b: {
+					default: 1.0,
+					min: 0.001,
+					max: 2.0,
+					nameKey: "config.forgetmenot.name.gamma_b",
+					descriptionKey: "config.forgetmenot.desc.gamma_b"
+				},
+				gain_r: {
+					default: 1.0,
+					min: 0.001,
+					max: 2.0,
+					nameKey: "config.forgetmenot.name.gain_r",
+					descriptionKey: "config.forgetmenot.desc.gain_r"
+				},
+				gain_g: {
+					default: 1.0,
+					min: 0.001,
+					max: 2.0,
+					nameKey: "config.forgetmenot.name.gain_g",
+					descriptionKey: "config.forgetmenot.desc.gain_g"
+				},
+				gain_b: {
+					default: 1.0,
+					min: 0.001,
+					max: 2.0,
+					nameKey: "config.forgetmenot.name.gain_b",
+					descriptionKey: "config.forgetmenot.desc.gain_b"
+				},
+				min_exposure_overworld: {
+					default: 0.2,
+					min: 0.0,
+					max: 2.0,
+					nameKey: "config.forgetmenot.name.min_exposure_overworld",
+					descriptionKey: "config.forgetmenot.desc.min_exposure_overworld"
+				},
+				max_exposure_overworld: {
+					default: 4.0,
+					min: 2.0,
+					max: 10.0,
+					nameKey: "config.forgetmenot.name.max_exposure_overworld",
+					descriptionKey: "config.forgetmenot.desc.max_exposure_overworld"
+				},
+				exposure_multiplier_overworld: {
+					default: 1.75,
+					min: 0.0,
+					max: 3.0,
+					nameKey: "config.forgetmenot.name.exposure_multiplier_overworld",
+					descriptionKey: "config.forgetmenot.desc.exposure_multiplier_overworld"
+				},
+				min_exposure_nether: {
+					default: 1.5,
+					min: 0.0,
+					max: 2.0,
+					nameKey: "config.forgetmenot.name.min_exposure_nether",
+					descriptionKey: "config.forgetmenot.desc.min_exposure_nether"
+				},
+				max_exposure_nether: {
+					default: 2.0,
+					min: 2.0,
+					max: 10.0,
+					nameKey: "config.forgetmenot.name.max_exposure_nether",
+					descriptionKey: "config.forgetmenot.desc.max_exposure_nether"
+				},
+				exposure_multiplier_nether: {
+					default: 0.75,
+					min: 0.0,
+					max: 3.0,
+					nameKey: "config.forgetmenot.name.exposure_multiplier_nether",
+					descriptionKey: "config.forgetmenot.desc.exposure_multiplier_nether"
+				},
+				min_exposure_end: {
+					default: 1.0,
+					min: 0.0,
+					max: 2.0,
+					nameKey: "config.forgetmenot.name.min_exposure_end",
+					descriptionKey: "config.forgetmenot.desc.min_exposure_end"
+				},
+				max_exposure_end: {
+					default: 1.4,
+					min: 1.0,
+					max: 10.0,
+					nameKey: "config.forgetmenot.name.max_exposure_end",
+					descriptionKey: "config.forgetmenot.desc.max_exposure_end"
+				},
+				exposure_multiplier_end: {
+					default: 1.5,
+					min: 0.0,
+					max: 3.0,
+					nameKey: "config.forgetmenot.name.exposure_multiplier_end",
+					descriptionKey: "config.forgetmenot.desc.exposure_multiplier_end"
 				},
 			}
 		},
@@ -241,6 +455,19 @@
 					nameKey: "config.forgetmenot.name.no_taa_jitter",
 					descriptionKey: "config.forgetmenot.desc.no_taa_jitter"
 				},
+				shadow_resolution: {
+					default: "1024",
+					choices: ["512", "1024", "2048", "3072", "4096"],
+					enum: true,
+					prefix: "resolution_",
+					nameKey: "config.forgetmenot.name.shadow_resolution",
+					descriptionKey: "config.forgetmenot.desc.shadow_resolution"
+				},
+				strict_shadow_bias: {
+					default: true,
+					nameKey: "config.forgetmenot.name.strict_shadow_bias",
+					descriptionKey: "config.forgetmenot.desc.strict_shadow_bias"
+				},
 			}
 		},
 		{
@@ -294,6 +521,11 @@
 					default: true,
 					nameKey: "config.forgetmenot.name.internal_materials",
 					descriptionKey: "config.forgetmenot.desc.internal_materials"
+				},			
+				fancy_powder_snow: {
+					default: true,
+					nameKey: "config.forgetmenot.name.fancy_powder_snow",
+					descriptionKey: "config.forgetmenot.desc.fancy_powder_snow"
 				},			
 			}
 		}
