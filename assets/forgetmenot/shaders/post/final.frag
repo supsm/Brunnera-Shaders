@@ -203,8 +203,8 @@ void main() {
 	} 
 	float pixel_depth = pixel_depth_info.x;
 	float dof_strength = 200 * abs(focus_depth - pixel_depth);
-	// allow forward blending if sample took on depth of another pixel
-	vec3 color = sample_gaussian(texcoord, dof_strength, 2, vec2(1.5), (pixel_depth_info.z > 1.05 ? 1.02 : 0)).rgb;
+	// allow forward blending (depth_multiplier = 0) if sample took on depth of another pixel (pixel_depth_info.z > 1)
+	vec3 color = sample_gaussian(texcoord, dof_strength, 2, vec2(1.5), (pixel_depth_info.z < 1.05 ? 1.02 : 0)).rgb;
 
 	/*// must be positive or lateral chromatic aberration will cause artifacts at sides
 	// and axial cromatic aberration will lead due negative stddev, kernel size (no abs is used)
