@@ -18,67 +18,35 @@
 		},
 		{
 			name: "bloom_d0",
-			colorAttachments: [
-				{
-					image: "bloom_downsample"
-				}
-			]
+			colorAttachments: [{ image: "bloom_downsample" }]
 		},
 		{
 			name: "bloom_d1",
-			colorAttachments: [
-				{
-					image: "bloom_downsample", lod: 1
-				}
-			]
+			colorAttachments: [{ image: "bloom_downsample", lod: 1 }]
 		},
 		{
 			name: "bloom_d2",
-			colorAttachments: [
-				{
-					image: "bloom_downsample", lod: 2
-				}
-			]
+			colorAttachments: [{ image: "bloom_downsample", lod: 2 }]
 		},
 		{
 			name: "bloom_d3",
-			colorAttachments: [
-				{
-					image: "bloom_downsample", lod: 3
-				}
-			]
+			colorAttachments: [{ image: "bloom_downsample", lod: 3 }]
 		},
 		{
 			name: "bloom_d4",
-			colorAttachments: [
-				{
-					image: "bloom_downsample", lod: 4
-				}
-			]
+			colorAttachments: [{ image: "bloom_downsample", lod: 4 }]
 		},
 		{
 			name: "bloom_d5",
-			colorAttachments: [
-				{
-					image: "bloom_downsample", lod: 5
-				}
-			]
+			colorAttachments: [{ image: "bloom_downsample", lod: 5 }]
 		},
 		{
 			name: "bloom_d6",
-			colorAttachments: [
-				{
-					image: "bloom_downsample", lod: 6
-				}
-			]
+			colorAttachments: [{ image: "bloom_downsample", lod: 6 }]
 		},
 		{
 			name: "bloom_d7",
-			colorAttachments: [
-				{
-					image: "bloom_downsample", lod: 7
-				}
-			]
+			colorAttachments: [{ image: "bloom_downsample", lod: 7 }]
 		},
 		{
 			name: "exposure",
@@ -98,67 +66,91 @@
 		},
 		{
 			name: "bloom_u7",
-			colorAttachments: [
-				{
-					image: "bloom_upsample", lod: 7
-				}
-			]
+			colorAttachments: [{ image: "bloom_upsample", lod: 7 }]
 		},
 		{
 			name: "bloom_u6",
-			colorAttachments: [
-				{
-					image: "bloom_upsample", lod: 6
-				}
-			]
+			colorAttachments: [{ image: "bloom_upsample", lod: 6 }]
 		},
 		{
 			name: "bloom_u5",
-			colorAttachments: [
-				{
-					image: "bloom_upsample", lod: 5
-				}
-			]
+			colorAttachments: [{ image: "bloom_upsample", lod: 5 }]
 		},
 		{
 			name: "bloom_u4",
-			colorAttachments: [
-				{
-					image: "bloom_upsample", lod: 4
-				}
-			]
+			colorAttachments: [{ image: "bloom_upsample", lod: 4 }]
 		},
 		{
 			name: "bloom_u3",
-			colorAttachments: [
-				{
-					image: "bloom_upsample", lod: 3
-				}
-			]
+			colorAttachments: [{ image: "bloom_upsample", lod: 3 }]
 		},
 		{
 			name: "bloom_u2",
-			colorAttachments: [
-				{
-					image: "bloom_upsample", lod: 2
-				}
-			]
+			colorAttachments: [{ image: "bloom_upsample", lod: 2 }]
 		},
 		{
 			name: "bloom_u1",
-			colorAttachments: [
-				{
-					image: "bloom_upsample", lod: 1
-				}
-			]
+			colorAttachments: [{ image: "bloom_upsample", lod: 1 }]
 		},
 		{
 			name: "bloom_u0",
-			colorAttachments: [
-				{
-					image: "bloom_upsample"
-				}
-			]
+			colorAttachments: [{ image: "bloom_upsample" }]
+		},
+		{
+			name: "dof_d0",
+			colorAttachments: [{ image: "dof_downsample" }]
+		},
+		{
+			name: "dof_d1",
+			colorAttachments: [{ image: "dof_downsample", lod: 1 }]
+		},
+		{
+			name: "dof_d2",
+			colorAttachments: [{ image: "dof_downsample", lod: 2 }]
+		},
+		{
+			name: "dof_d3",
+			colorAttachments: [{ image: "dof_downsample", lod: 3 }]
+		},
+		{
+			name: "dof_d4",
+			colorAttachments: [{ image: "dof_downsample", lod: 4 }]
+		},
+		{
+			name: "dof_d5",
+			colorAttachments: [{ image: "dof_downsample", lod: 5 }]
+		},
+		{
+			name: "dof_d6",
+			colorAttachments: [{image: "dof_downsample", lod: 6 }]
+		},
+		{
+			name: "dof_depth_d0",
+			colorAttachments: [{ image: "dof_depth_downsample" }]
+		},
+		{
+			name: "dof_depth_d1",
+			colorAttachments: [{ image: "dof_depth_downsample", lod: 1 }]
+		},
+		{
+			name: "dof_depth_d2",
+			colorAttachments: [{ image: "dof_depth_downsample", lod: 2 }]
+		},
+		{
+			name: "dof_depth_d3",
+			colorAttachments: [{ image: "dof_depth_downsample", lod: 3 }]
+		},
+		{
+			name: "dof_depth_d4",
+			colorAttachments: [{ image: "dof_depth_downsample", lod: 4 }]
+		},
+		{
+			name: "dof_depth_d5",
+			colorAttachments: [{ image: "dof_depth_downsample", lod: 5 }]
+		},
+		{
+			name: "dof_depth_d6",
+			colorAttachments: [{image: "dof_depth_downsample", lod: 6 }]
 		},
 		{
 			name: "final",

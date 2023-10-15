@@ -22,83 +22,35 @@
 				lod: 0,
 			},
 			{
-				name: "bloom_d0",
-				program: "bloom_downsample",
-				framebuffer: "bloom_d0",
-				samplerImages: [
-					"taa_copy"
-				],
-				toggleConfig: "enable_bloom"
+				name: "bloom_d0", program: "bloom_downsample", framebuffer: "bloom_d0", samplerImages: ["taa_copy"], toggleConfig: "enable_bloom"
 			},
 			{
-				name: "bloom_d1",
-				program: "bloom_downsample",
-				framebuffer: "bloom_d1",
-				samplerImages: [
-					"bloom_downsample"
-				],
-				lod: 1,
-				toggleConfig: "enable_bloom"
+				name: "bloom_d1", program: "bloom_downsample", framebuffer: "bloom_d1", samplerImages: ["bloom_downsample"],
+				lod: 1, toggleConfig: "enable_bloom"
 			},
 			{
-				name: "bloom_d2",
-				program: "bloom_downsample",
-				framebuffer: "bloom_d2",
-				samplerImages: [
-					"bloom_downsample"
-				],
-				lod: 2,
-				toggleConfig: "enable_bloom"
+				name: "bloom_d2", program: "bloom_downsample", framebuffer: "bloom_d2", samplerImages: ["bloom_downsample"],
+				lod: 2, toggleConfig: "enable_bloom"
 			},
 			{
-				name: "bloom_d3",
-				program: "bloom_downsample",
-				framebuffer: "bloom_d3",
-				samplerImages: [
-					"bloom_downsample"
-				],
-				lod: 3,
-				toggleConfig: "enable_bloom"
+				name: "bloom_d3", program: "bloom_downsample", framebuffer: "bloom_d3", samplerImages: ["bloom_downsample"],
+				lod: 3, toggleConfig: "enable_bloom"
 			},
 			{
-				name: "bloom_d4",
-				program: "bloom_downsample",
-				framebuffer: "bloom_d4",
-				samplerImages: [
-					"bloom_downsample"
-				],
-				lod: 4,
-				toggleConfig: "enable_bloom"
+				name: "bloom_d4", program: "bloom_downsample", framebuffer: "bloom_d4", samplerImages: ["bloom_downsample"],
+				lod: 4, toggleConfig: "enable_bloom"
 			},
 			{
-				name: "bloom_d5",
-				program: "bloom_downsample",
-				framebuffer: "bloom_d5",
-				samplerImages: [
-					"bloom_downsample"
-				],
-				lod: 5,
-				toggleConfig: "enable_bloom"
+				name: "bloom_d5", program: "bloom_downsample", framebuffer: "bloom_d5", samplerImages: ["bloom_downsample"],
+				lod: 5, toggleConfig: "enable_bloom"
 			},
 			{
-				name: "bloom_d6",
-				program: "bloom_downsample",
-				framebuffer: "bloom_d6",
-				samplerImages: [
-					"bloom_downsample"
-				],
-				lod: 6,
-				toggleConfig: "enable_bloom"
+				name: "bloom_d6", program: "bloom_downsample", framebuffer: "bloom_d6", samplerImages: ["bloom_downsample"],
+				lod: 6, toggleConfig: "enable_bloom"
 			},
 			{
-				name: "bloom_d7",
-				program: "bloom_downsample",
-				framebuffer: "bloom_d7",
-				samplerImages: [
-					"bloom_downsample"
-				],
-				lod: 7,
-				toggleConfig: "enable_bloom"
+				name: "bloom_d7", program: "bloom_downsample", framebuffer: "bloom_d7", samplerImages: ["bloom_downsample"],
+				lod: 7, toggleConfig: "enable_bloom"
 			},
 			{
 				name: "exposure",
@@ -125,91 +77,36 @@
 				toggleConfig: "enable_bloom"
 			},
 			{
-				name: "bloom_u7",
-				program: "bloom_upsample_first",
-				framebuffer: "bloom_u7",
-				samplerImages: [
-					"bloom_downsample"
-				],
-				lod: 7,
-				toggleConfig: "enable_bloom"
+				name: "bloom_u7", program: "bloom_upsample_first", framebuffer: "bloom_u7", samplerImages: ["bloom_downsample"],
+				lod: 7, toggleConfig: "enable_bloom"
 			},
 			{
-				name: "bloom_u6",
-				program: "bloom_upsample",
-				framebuffer: "bloom_u6",
-				samplerImages: [
-					"bloom_downsample",
-					"bloom_upsample"
-				],
-				lod: 6,
-				toggleConfig: "enable_bloom"
+				name: "bloom_u6", program: "bloom_upsample", framebuffer: "bloom_u6", samplerImages: ["bloom_downsample", "bloom_upsample"],
+				lod: 6, toggleConfig: "enable_bloom"
 			},
 			{
-				name: "bloom_u5",
-				program: "bloom_upsample",
-				framebuffer: "bloom_u5",
-				samplerImages: [
-					"bloom_downsample",
-					"bloom_upsample"
-				],
-				lod: 5,
-				toggleConfig: "enable_bloom"
+				name: "bloom_u5", program: "bloom_upsample", framebuffer: "bloom_u5", samplerImages: ["bloom_downsample", "bloom_upsample"],
+				lod: 5, toggleConfig: "enable_bloom"
 			},
 			{
-				name: "bloom_u4",
-				program: "bloom_upsample",
-				framebuffer: "bloom_u4",
-				samplerImages: [
-					"bloom_downsample",
-					"bloom_upsample"
-				],
-				lod: 4,
-				toggleConfig: "enable_bloom"
+				name: "bloom_u4", program: "bloom_upsample", framebuffer: "bloom_u4", samplerImages: ["bloom_downsample", "bloom_upsample"],
+				lod: 4, toggleConfig: "enable_bloom"
 			},
 			{
-				name: "bloom_u3",
-				program: "bloom_upsample",
-				framebuffer: "bloom_u3",
-				samplerImages: [
-					"bloom_downsample",
-					"bloom_upsample"
-				],
-				lod: 3,
-				toggleConfig: "enable_bloom"
+				name: "bloom_u3", program: "bloom_upsample", framebuffer: "bloom_u3", samplerImages: ["bloom_downsample", "bloom_upsample"],
+				lod: 3, toggleConfig: "enable_bloom"
 			},
 			{
-				name: "bloom_u2",
-				program: "bloom_upsample",
-				framebuffer: "bloom_u2",
-				samplerImages: [
-					"bloom_downsample",
-					"bloom_upsample"
-				],
-				lod: 2,
-				toggleConfig: "enable_bloom"
+				name: "bloom_u2", program: "bloom_upsample", framebuffer: "bloom_u2", samplerImages: ["bloom_downsample", "bloom_upsample"],
+				lod: 2, toggleConfig: "enable_bloom"
 			},
 			{
-				name: "bloom_u1",
-				program: "bloom_upsample",
-				framebuffer: "bloom_u1",
-				samplerImages: [
-					"bloom_downsample",
-					"bloom_upsample"
-				],
-				lod: 1,
-				toggleConfig: "enable_bloom"
+				name: "bloom_u1", program: "bloom_upsample", framebuffer: "bloom_u1", samplerImages: ["bloom_downsample", "bloom_upsample"],
+				lod: 1, toggleConfig: "enable_bloom"
 			},
 			{
-				name: "bloom_u0",
-				program: "bloom_upsample",
-				framebuffer: "bloom_u0",
-				samplerImages: [
-					"bloom_downsample",
-					"bloom_upsample"
-				],
-				lod: 0,
-				toggleConfig: "enable_bloom"
+				name: "bloom_u0", program: "bloom_upsample", framebuffer: "bloom_u0", samplerImages: ["bloom_downsample", "bloom_upsample"],
+				lod: 0, toggleConfig: "enable_bloom"
 			},
 			{
 				name: "bloom_merge",
@@ -225,6 +122,60 @@
 
 					"exposure"
 				],
+			},
+			{
+				name: "dof_d0", program: "dof_downsample", framebuffer: "dof_d0", samplerImages: ["final"]
+			},
+			{
+				name: "dof_d1", program: "dof_downsample", framebuffer: "dof_d1", samplerImages: ["dof_downsample"],
+				lod: 1
+			},
+			{
+				name: "dof_d2", program: "dof_downsample", framebuffer: "dof_d2", samplerImages: ["dof_downsample"],
+				lod: 2
+			},
+			{
+				name: "dof_d3", program: "dof_downsample", framebuffer: "dof_d3", samplerImages: ["dof_downsample"],
+				lod: 3
+			},
+			{
+				name: "dof_d4", program: "dof_downsample", framebuffer: "dof_d4", samplerImages: ["dof_downsample"],
+				lod: 4
+			},
+			{
+				name: "dof_d5", program: "dof_downsample", framebuffer: "dof_d5", samplerImages: ["dof_downsample"],
+				lod: 5
+			},
+			{
+				name: "dof_d6", program: "dof_downsample", framebuffer: "dof_d6", samplerImages: ["dof_downsample"],
+				lod: 6
+			},
+			{
+				name: "dof_depth_d0", program: "dof_depth_downsample", framebuffer: "dof_depth_d0", samplerImages: ["composite_depth"]
+			},
+			{
+				name: "dof_depth_d1", program: "dof_depth_downsample", framebuffer: "dof_depth_d1", samplerImages: ["dof_depth_downsample"],
+				lod: 1
+			},
+			{
+				name: "dof_depth_d2", program: "dof_depth_downsample", framebuffer: "dof_depth_d2", samplerImages: ["dof_depth_downsample"],
+				lod: 2
+			},
+			{
+				name: "dof_depth_d3", program: "dof_depth_downsample", framebuffer: "dof_depth_d3", samplerImages: ["dof_depth_downsample"],
+				lod: 3
+			},
+			{
+				name: "dof_depth_d4", program: "dof_depth_downsample", framebuffer: "dof_depth_d4", samplerImages: ["dof_depth_downsample"],
+				lod: 4
+			},
+			{
+				name: "dof_depth_d5", program: "dof_depth_downsample", framebuffer: "dof_depth_d5", samplerImages: ["dof_depth_downsample"],
+				lod: 5
+			},
+			{
+				name: "dof_depth_d6", program: "dof_depth_downsample", framebuffer: "dof_depth_d6", samplerImages: ["dof_depth_downsample"],
+				lod: 6
 			},
 			{
 				name: "final",
@@ -246,9 +197,11 @@
 							]
 						}
 					},
-					"exposure",
+					"dof_downsample",
 					"composite_depth",
+					"dof_depth_downsample",
 					"solid_depth",
+					"exposure",
 					"precise_uniforms"
 				],
 			},

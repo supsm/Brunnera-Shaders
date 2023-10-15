@@ -1,14 +1,6 @@
 {
 	programs: [
 		{
-			name: "downscale",
-			vertexSource: "forgetmenot:shaders/post/frame_full.vert",
-			fragmentSource: "forgetmenot:shaders/post/downscale.frag",
-			samplers: [
-				"u_color",
-			]
-		},
-		{
 			name: "taa",
 			vertexSource: "forgetmenot:shaders/post/frame_full.vert",
 			fragmentSource: "forgetmenot:shaders/post/taa.frag",
@@ -22,7 +14,7 @@
 		{
 			name: "bloom_downsample",
 			vertexSource: "forgetmenot:shaders/post/frame_full.vert",
-			fragmentSource: "forgetmenot:shaders/post/bloom/bloom_downsample.frag",
+			fragmentSource: "forgetmenot:shaders/post/tent_downsample.frag",
 			samplers: [
 				"u_color"
 			]
@@ -69,14 +61,32 @@
 			]
 		},
 		{
+			name: "dof_downsample",
+			vertexSource: "forgetmenot:shaders/post/frame_full.vert",
+			fragmentSource: "forgetmenot:shaders/post/tent_downsample.frag",
+			samplers: [
+				"u_color"
+			]
+		},
+		{
+			name: "dof_depth_downsample",
+			vertexSource: "forgetmenot:shaders/post/frame_full.vert",
+			fragmentSource: "forgetmenot:shaders/post/tent_downsample.frag",
+			samplers: [
+				"u_color"
+			]
+		},
+		{
 			name: "final",
 			vertexSource: "forgetmenot:shaders/post/final.vert",
 			fragmentSource: "forgetmenot:shaders/post/final.frag",
 			samplers: [
 				"u_color",
-				"u_exposure",
+				"u_downsampled",
 				"u_depth",
+				"u_depth_downsampled",
 				"u_hand_depth",
+				"u_exposure",
 				"u_precise_uniforms"
 			]
 		},
