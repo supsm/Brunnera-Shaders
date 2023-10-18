@@ -2,6 +2,10 @@
 	"pipeline.forgetmenot.name": "Forget-Me-Not Shaders",
 	"pipeline.forgetmenot.desc": "Immersive shaders for Canvas",
 
+	"config.forgetmenot.category.cam_effects": "Camera Effects",
+	"config.formetmenot.name.fast_dof": "Fast DoF",
+	"config.formetmenot.desc.fast_dof": "Use faster, but lower quality depth-of-field effect (based on lod)",
+
 	"config.forgetmenot.category.atmosphere": "Atmosphere",
 	
 	"config.forgetmenot.name.sun_brightness": "Sun Brightness",

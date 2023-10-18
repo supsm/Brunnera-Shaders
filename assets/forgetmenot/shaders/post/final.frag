@@ -1,6 +1,9 @@
 #include forgetmenot:shaders/lib/inc/header.glsl 
 #include forgetmenot:shaders/lib/inc/noise.glsl 
 
+#include forgetmenot:cam_properties
+#include forgetmenot:cam_effects
+
 uniform sampler2D u_color;
 uniform sampler2D u_downsampled;
 uniform sampler2D u_depth;
@@ -63,13 +66,17 @@ vec4 sample_gaussian(vec2 center, float stddev, float kernel_size_stddevs = 2, v
 		return default_val;
 	}
 
-	// TODO: make use of lod a config option
+	// TODO: put config in pipeline thingy so downsample doesn't even happen
+#ifdef FAST_DOF
 	float lod = clamp(log2(stddev) - 2, 0, 6);
 	if (lod != 0)
 	{
 		stddev = 4; // divide stddev so transitions are smoother
 		if (focus_depth == -1) { depth_multiplier = 0; } // disable depth check for color lod
 	}
+#else
+	float lod = 0;
+#endif
 
 	vec2 pixel_size = 1.0 / frxu_size * exp2(lod);
 	vec2 step_one = step_size * pixel_size;
@@ -242,6 +249,7 @@ void main() {
 	//finalColor = lottes(finalColor, 8);
 	// linear
 	//finalColor = clamp(finalColor, vec3(0), vec3(1));
+#if CAM_TYPE == CAM_TYPE_DIGITAL
 	// dscs315-1 (4/4 approx)
 	float white_point = expo * 1600;
 	float x = clamp(finalColor.r, 0, white_point) / white_point;
@@ -251,7 +259,9 @@ void main() {
 	x = clamp(finalColor.b, 0, white_point) / white_point;
 	finalColor.b = tonemap_approx(x, -37.3, 13.34, -1.63, 0, -31.03, 4.62, 1.05, -0.31, 0);
 	finalColor = clamp01(finalColor);
+#else
 	// ektachrome 100 plus (5/5 approx)
+	// very yellow for some reason
 	/*float white_point = expo * 1600;
 	float x = clamp(finalColor.r, 0, white_point) / white_point;
 	finalColor.r = tonemap_approx(x, 4737.11, -635.97, 6.04, 4.89, 0.24, 4771.84, -765.86, 95.52, 21.02, -6.19, 0.61);
@@ -261,14 +271,14 @@ void main() {
 	finalColor.b = tonemap_approx(x, 5832.11, -2701.59, 234.58, 0.07, 1.28, 4720.28, -1011.13, -396.94, 194.41, -36.87, 4.34);
 	finalColor = clamp01(finalColor);*/
 	// gold 200 (4/4 approx)
-	/*float white_point = expo * 1600;
+	float white_point = expo * 1600;
 	float x = clamp(finalColor.r, 0, white_point) / white_point;
 	finalColor.r = tonemap_approx(x, -1446.21, 339.41, -71.10, -4.44, -958.53, -268.05, 80.64, -32.42, -0.57);
 	x = clamp(finalColor.g, 0, white_point) / white_point;
 	finalColor.g = tonemap_approx(x, -1627.54, 1106.05, -245.18, -31.58, -901.04, -157.98, 434.21, -166.83, -5.76);
 	x = clamp(finalColor.b, 0, white_point) / white_point;
 	finalColor.b = tonemap_approx(x, -1606.57, 726.14, -200.30, -13.98, -840.76, -410.04, 282.62, -119.58, -3.82);
-	finalColor = clamp01(finalColor);*/
+	finalColor = clamp01(finalColor);
 	// portra 400 NC (4/4 approx)
 	/*float white_point = expo * 1600;
 	float x = clamp(finalColor.r, 0, white_point) / white_point;
@@ -278,21 +288,25 @@ void main() {
 	x = clamp(finalColor.b, 0, white_point) / white_point;
 	finalColor.b = tonemap_approx(x, 2.96, -1.16, -1.98, -0.07, 0.59, 2.94, -2.97, -0.80, -0.01);
 	finalColor = clamp01(finalColor);*/
+#endif
 
 
 	// arbitrary units
 	float iso = sqrt(expo);
 
-	// film grain (multiplicative, monochromatic)
-	// brightness simulates grain size, which is affected by iso
-	//finalColor *= 1 - max(0, normal_distribution(vec2(randomFloat(), randomFloat()), 0, min(0.5, 0.005 / iso)).x) * float(randomFloat() > 0.2);
-	//finalColor = clamp01(finalColor);
-
+#if CAM_TYPE == CAM_TYPE_DIGITAL
 	// digital noise (additive and subtractive, per-channel)
 	// exposure affects noise directly
 	float noisiness = 0.001;
 	finalColor += vec4(normal_distribution(vec2(randomFloat(), randomFloat()), 0, noisiness / iso), normal_distribution(vec2(randomFloat(), randomFloat()), 0, noisiness / iso)).xyz;
 	finalColor = clamp01(finalColor);
+#else
+	// film grain (multiplicative, monochromatic)
+	// brightness simulates grain size, which is affected by iso
+	finalColor *= 1 - max(0, normal_distribution(vec2(randomFloat(), randomFloat()), 0, min(0.5, 0.005 / iso)).x) * float(randomFloat() > 0.2);
+	finalColor = clamp01(finalColor);
+#endif
+
 
 	//const int bitDepth = 256;
 	//finalColor = round(finalColor * bitDepth) / bitDepth;
