@@ -28,7 +28,14 @@
 				fast_dof: {
 					default: true,
 					nameKey: "config.formetmenot.name.fast_dof",
-					descriptionKey: "config.formetmenot.desc.fast_dof",
+					descriptionKey: "config.formetmenot.desc.fast_dof"
+				},
+				gem_power: {
+					default: 2.0,
+					min: -4.0,
+					max: 4.0,
+					nameKey: "config.forgetmenot.name.gem_power",
+					descriptionKey: "config.forgetmenot.desc.gem_power"
 				}
 			}
 		},

@@ -68,6 +68,7 @@ vec4 sample_gaussian(vec2 center, float stddev, float kernel_size_stddevs = 2, v
 
 	// TODO: put config in pipeline thingy so downsample doesn't even happen
 #ifdef FAST_DOF
+	// TODO: make this -2 part configurable
 	float lod = clamp(log2(stddev) - 2, 0, 6);
 	if (lod != 0)
 	{
@@ -78,6 +79,8 @@ vec4 sample_gaussian(vec2 center, float stddev, float kernel_size_stddevs = 2, v
 	float lod = 0;
 #endif
 
+	// center in pixels
+	vec2 center_px = center * frxu_size;
 	vec2 pixel_size = 1.0 / frxu_size * exp2(lod);
 	vec2 step_one = step_size * pixel_size;
 	// log kernel size to make higher blurs use less samples
@@ -98,8 +101,8 @@ vec4 sample_gaussian(vec2 center, float stddev, float kernel_size_stddevs = 2, v
 	{
 		for (float j = center.y - half_kernel_size_f.y; j <= center.y + half_kernel_size_f.y; j += step_one.y)
 		{
-			float dist = length(vec2(i, j) - center) / stddev;
-			if (dist > kernel_size_stddevs)
+			float dist = distance(vec2(i, j) * frxu_size, center_px) / stddev;
+			if (dist > 1) // TODO: make this check an option; without it square bokeh is produced
 			{
 				continue;
 			}
@@ -131,16 +134,16 @@ vec4 sample_gaussian(vec2 center, float stddev, float kernel_size_stddevs = 2, v
 				vec3 sample;
 				if (focus_depth == -1)
 				{
-					sample = (lod < 1 ?
-						texture(u_color, vec2(i, j)).rgb :
-						textureLod(u_downsampled, vec2(i, j), lod).rgb);
+					// u_downsampled with lod=0 is just u_color with gem preprocessing
+					sample = textureLod(u_downsampled, vec2(i, j), lod).rgb;
 				}
 				else
 				{
 					sample = vec3(sample_depth);
 				}
+				// gaussian filter
 				// we can leave out 1/(stddev*sqrt(2*PI)) because constants cancel out in division
-				float multiplier = exp(-0.5 * dist * dist);
+				float multiplier = exp(-0.5 * dist * dist); // TODO: prevent forward blending for bokeh somehow?
 				sum += sample * multiplier;
 				mult_sum += multiplier;
 			}
@@ -148,11 +151,20 @@ vec4 sample_gaussian(vec2 center, float stddev, float kernel_size_stddevs = 2, v
 	}
 	if (mult_sum == 0)
 	{
-		return (lod < 1 ?
-			default_val :
-			vec4(textureLod((focus_depth == -1 ? u_downsampled : u_depth_downsampled), center, lod).rgb, 1));
+		vec4 val = default_val;
+		if (lod >= 1)
+		{
+			bool is_color = (focus_depth == -1);
+			val = vec4(textureLod((is_color ? u_downsampled : u_depth_downsampled), center, lod).rgb, 1);
+			if (is_color)
+			{
+				// fine to pow alpha since it's always 1
+				val = pow(val, vec4(1 / GEM_POWER));
+			}
+		}
+		return val;
 	}
-	return vec4(sum / mult_sum, mult_sum);
+	return vec4(pow(sum / mult_sum, vec3(1 / GEM_POWER)), mult_sum);
 }
 
 // Lottes 2016, "Advanced Techniques and Optimization of HDR Color Pipelines"
@@ -203,13 +215,14 @@ void main() {
 	if (hand_depth > 0) // not part of hand
 	{
 		pixel_depth_info = sample_gaussian(texcoord, 4, 2, vec2(1.5), -1, focus_depth);
+		//pixel_depth_info = vec4(texture(u_depth, texcoord).xyz, 1);
 	}
 	else // part of hand
 	{
 		pixel_depth_info = vec4(vec3(hand_depth), 1);
 	} 
 	float pixel_depth = pixel_depth_info.x;
-	float dof_strength = 200 * abs(focus_depth - pixel_depth);
+	float dof_strength = min(200 * abs(focus_depth - pixel_depth), 64); // cap at 64 pixels to avoid excessive lag
 	// allow forward blending (depth_multiplier = 0) if sample took on depth of another pixel (pixel_depth_info.z > 1)
 	vec3 color = sample_gaussian(texcoord, dof_strength, 2, vec2(1.5), (pixel_depth_info.z < 1.05 ? 1.02 : 0)).rgb;
 
@@ -229,7 +242,8 @@ void main() {
 
 	vec3 finalColor = color.rgb;
 
-	float expo = clamp(exposure, 0.0003, 0.002);
+	// TODO: AWB or smth
+	float expo = clamp(exposure, 0.001, 0.002);
 
 	// aces tonemap
 	//finalColor = FRX_ACES_INPUT_MATRIX * finalColor;

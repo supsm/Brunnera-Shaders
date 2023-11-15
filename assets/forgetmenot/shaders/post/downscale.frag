@@ -1,3 +1,4 @@
+// simple downscale using default opengl texture sampler
 #include forgetmenot:shaders/lib/inc/header.glsl 
 
 uniform sampler2D u_color;

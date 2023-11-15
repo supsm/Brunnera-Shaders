@@ -89,7 +89,7 @@
 		{
 			name: "dof_downsample",
 			lod: 6,
-			internalFormat: "R11F_G11F_B10F",
+			internalFormat: "RGB32F",
 			pixelFormat: "RGBA",
 			pixelDataType: "UNSIGNED_BYTE",
 			target: "TEXTURE_2D",

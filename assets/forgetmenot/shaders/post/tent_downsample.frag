@@ -1,3 +1,4 @@
+// downsample to half using frx_sampleTent (triangular sinc approximation w/ 9 samples)
 #include forgetmenot:shaders/lib/inc/header.glsl 
 
 uniform sampler2D u_color;

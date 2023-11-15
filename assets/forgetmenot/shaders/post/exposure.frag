@@ -49,6 +49,6 @@ void main() {
 	float prevLuminance = texelFetch(u_previous, ivec2(0), 0).r;
 	float frame_time = frx_renderSeconds - texelFetch(u_precise_uniforms, ivec2(0), 0).x;
 
-	float smoothingFactor = clamp((prevLuminance > avgLuminance ? 0.04 : 0.2) * frame_time, 0, 1);
+	float smoothingFactor = clamp((prevLuminance > avgLuminance ? 0.16 : 0.24) * frame_time, 0, 1);
 	if(frx_renderFrames > 1u) avgLuminance = max(0.0, mix(prevLuminance, avgLuminance, smoothingFactor));
 }
