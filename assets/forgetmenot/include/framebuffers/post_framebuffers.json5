@@ -1,6 +1,10 @@
 {
 	framebuffers: [
 		{
+			name: "interlaced_solid_color",
+			colorAttachments: [{ image: "interlaced_solid_color" }]
+		},
+		{
 			name: "taa",
 			colorAttachments: [
 				{
@@ -159,6 +163,10 @@
 					image: "final"
 				}
 			]
+		},
+		{
+			name: "final_copy",
+			colorAttachments: [{ image: "final_copy" }]
 		},
 		{
 			name: "precise_uniforms",

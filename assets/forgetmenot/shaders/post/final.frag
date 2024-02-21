@@ -1,5 +1,6 @@
 #include forgetmenot:shaders/lib/inc/header.glsl 
 #include forgetmenot:shaders/lib/inc/noise.glsl 
+#include forgetmenot:shaders/lib/inc/interlace.glsl
 
 #include forgetmenot:cam_properties
 #include forgetmenot:cam_effects
@@ -204,6 +205,15 @@ float tonemap_approx(float x,
 
 void main() {
 	initGlobals();
+
+#ifdef INTERLACING
+	// boosts fps somewhat with "slow dof"
+	if (!interlace_is_rendered(ivec2(gl_FragCoord), frx_renderFrames))
+	{
+		fragColor = vec4(0);
+		return;
+	}
+#endif
 
 	// TODO: don't instantly change focus, make it transition somewhat slowly
 	float focus_depth = texture(u_depth, vec2(0.5)).x;

@@ -205,6 +205,37 @@
 					"precise_uniforms"
 				],
 			},
+			// TODO: can we discard and write to the same buffer instead of copying?
+			{
+				name: "interlace_merge",
+				program: "interlace_merge",
+				framebuffer: "interlaced_solid_color",
+				samplerImages: [
+					"solid_color",
+					"final_copy",
+					"composite_depth",
+					"solid_depth"
+				],
+				toggleConfig: "interlacing"
+			},
+			{
+				name: "final_copy",
+				program: "copy",
+				framebuffer: "final_copy",
+				samplerImages: [
+					"interlaced_solid_color"
+				],
+				toggleConfig: "interlacing"
+			},
+			{
+				name: "final_copy_to_main",
+				program: "copy",
+				framebuffer: "copy_to_main",
+				samplerImages: [
+					"interlaced_solid_color"
+				],
+				toggleConfig: "interlacing"
+			},
 			{
 				name: "precise_uniforms",
 				program: "precise_uniforms",

@@ -2,9 +2,19 @@
 	"pipeline.forgetmenot.name": "Forget-Me-Not Shaders",
 	"pipeline.forgetmenot.desc": "Immersive shaders for Canvas",
 
+	"config.forgetmenot.category.cam_properties": "Camera Properties",
+	"config.forgetmenot.name.cam_type": "Camera Type",
+	"config.forgetmenot.desc.cam_type": "Select between digital and film camera. Affects tonemap and noise.",
+
 	"config.forgetmenot.category.cam_effects": "Camera Effects",
 	"config.formetmenot.name.fast_dof": "Fast DoF",
-	"config.formetmenot.desc.fast_dof": "Use faster, but lower quality depth-of-field effect (based on lod)",
+	"config.formetmenot.desc.fast_dof": "Use faster, but lower quality depth-of-field effect (based on lod).",
+	"config.forgetmenot.name.gem_power": "Bokeh Strength",
+	"config.forgetmenot.desc.gem_power": "GeM exponent for Dof. Higher values exaggerate brighter spots to create a stronger bokeh effect. 1 is normal arithmetic mean.",
+	"config.forgetmenot.name.interlacing": "Interlacing Effect",
+	"config.forgetmenot.desc.interlacing": "Digital interlacing effect (also works for film camera type if you are a maniac). Purely visual, does not affect performance.",
+	"config.forgetmenot.name.interlace_size": "Interlace Size",
+	"config.forgetmenot.desc.interlace_size": "Height of each interlaced \"bar\" in pixels. Values other than 1 are unrealistic but exaggerate interlaced effect.",
 
 	"config.forgetmenot.category.atmosphere": "Atmosphere",
 	
