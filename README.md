@@ -35,19 +35,31 @@ If you're a developer or mod hoster, Brunnera is licensed under the [LGPL v3.0](
 
 ## Feature highlights
 
-- seasons! be immersed in your world as the seasons change over time
+- Chromatic aberration
 
-- HDR, bloom, and tone mapping
+- Depth-of-field
 
-- dramatic skies with atmospheric scattering and custom realistic clouds
+- Interlacing effect
 
-- water waves and reflections
+- Somewhat realistic noise
 
-- support for PBR, with hundreds of built-in default materials
+- Realistic tonemaps from real cameras
 
-- contact-hardening variable penumbra shadows 
+- Most of Forget-me-not's features, including:
 
-- advanced anti-aliasing (TAA)
+  - seasons! be immersed in your world as the seasons change over time
+
+  - HDR, bloom, and tone mapping
+
+  - dramatic skies with atmospheric scattering and custom realistic clouds
+
+  - water waves and reflections
+
+  - support for PBR, with hundreds of built-in default materials
+
+  - contact-hardening variable penumbra shadows 
+
+  - advanced anti-aliasing (TAA)
 
 ## Credits
 
