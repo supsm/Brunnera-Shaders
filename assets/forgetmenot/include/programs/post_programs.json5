@@ -96,15 +96,23 @@
 			]
 		},
 		{
-			name: "final",
-			vertexSource: "forgetmenot:shaders/post/final.vert",
-			fragmentSource: "forgetmenot:shaders/post/final.frag",
+			name: "dof",
+			vertexSource: "forgetmenot:shaders/post/frame_full.vert",
+			fragmentSource: "forgetmenot:shaders/post/dof.frag",
 			samplers: [
 				"u_color",
 				"u_downsampled",
 				"u_depth",
 				"u_depth_downsampled",
-				"u_hand_depth",
+				"u_hand_depth"
+			]
+		},
+		{
+			name: "final",
+			vertexSource: "forgetmenot:shaders/post/final.vert",
+			fragmentSource: "forgetmenot:shaders/post/final.frag",
+			samplers: [
+				"u_color",
 				"u_exposure",
 				"u_precise_uniforms"
 			]

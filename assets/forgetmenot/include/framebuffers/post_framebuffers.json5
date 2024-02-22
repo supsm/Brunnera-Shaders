@@ -165,6 +165,10 @@
 			]
 		},
 		{
+			name: "pre_final",
+			colorAttachments: [{ image: "pre_final" }]
+		},
+		{
 			name: "final_copy",
 			colorAttachments: [{ image: "final_copy" }]
 		},

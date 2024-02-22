@@ -124,63 +124,65 @@
 				],
 			},
 			{
-				name: "dof_d0", program: "gem_preprocess", framebuffer: "dof_d0", samplerImages: ["final"]
+				name: "dof_d0", program: "gem_preprocess", framebuffer: "dof_d0", samplerImages: ["final"],
+				toggleConfig: "fast_dof"
 			},
 			{
 				name: "dof_d1", program: "dof_downsample", framebuffer: "dof_d1", samplerImages: ["dof_downsample"],
-				lod: 1
+				lod: 1, toggleConfig: "fast_dof"
 			},
 			{
 				name: "dof_d2", program: "dof_downsample", framebuffer: "dof_d2", samplerImages: ["dof_downsample"],
-				lod: 2
+				lod: 2, toggleConfig: "fast_dof"
 			},
 			{
 				name: "dof_d3", program: "dof_downsample", framebuffer: "dof_d3", samplerImages: ["dof_downsample"],
-				lod: 3
+				lod: 3, toggleConfig: "fast_dof"
 			},
 			{
 				name: "dof_d4", program: "dof_downsample", framebuffer: "dof_d4", samplerImages: ["dof_downsample"],
-				lod: 4
+				lod: 4, toggleConfig: "fast_dof"
 			},
 			{
 				name: "dof_d5", program: "dof_downsample", framebuffer: "dof_d5", samplerImages: ["dof_downsample"],
-				lod: 5
+				lod: 5, toggleConfig: "fast_dof"
 			},
 			{
 				name: "dof_d6", program: "dof_downsample", framebuffer: "dof_d6", samplerImages: ["dof_downsample"],
-				lod: 6
+				lod: 6, toggleConfig: "fast_dof"
 			},
 			{
-				name: "dof_depth_d0", program: "dof_depth_downsample", framebuffer: "dof_depth_d0", samplerImages: ["composite_depth"]
+				name: "dof_depth_d0", program: "dof_depth_downsample", framebuffer: "dof_depth_d0", samplerImages: ["composite_depth"],
+				toggleConfig: "fast_dof"
 			},
 			{
 				name: "dof_depth_d1", program: "dof_depth_downsample", framebuffer: "dof_depth_d1", samplerImages: ["dof_depth_downsample"],
-				lod: 1
+				lod: 1, toggleConfig: "fast_dof"
 			},
 			{
 				name: "dof_depth_d2", program: "dof_depth_downsample", framebuffer: "dof_depth_d2", samplerImages: ["dof_depth_downsample"],
-				lod: 2
+				lod: 2, toggleConfig: "fast_dof"
 			},
 			{
 				name: "dof_depth_d3", program: "dof_depth_downsample", framebuffer: "dof_depth_d3", samplerImages: ["dof_depth_downsample"],
-				lod: 3
+				lod: 3, toggleConfig: "fast_dof"
 			},
 			{
 				name: "dof_depth_d4", program: "dof_depth_downsample", framebuffer: "dof_depth_d4", samplerImages: ["dof_depth_downsample"],
-				lod: 4
+				lod: 4, toggleConfig: "fast_dof"
 			},
 			{
 				name: "dof_depth_d5", program: "dof_depth_downsample", framebuffer: "dof_depth_d5", samplerImages: ["dof_depth_downsample"],
-				lod: 5
+				lod: 5, toggleConfig: "fast_dof"
 			},
 			{
 				name: "dof_depth_d6", program: "dof_depth_downsample", framebuffer: "dof_depth_d6", samplerImages: ["dof_depth_downsample"],
-				lod: 6
+				lod: 6, toggleConfig: "fast_dof"
 			},
 			{
-				name: "final",
-				program: "final",
-				framebuffer: "copy_to_main",
+				name: "dof",
+				program: "dof",
+				framebuffer: "pre_final",
 				samplerImages: [
 					{
 						default: "final",
@@ -200,7 +202,15 @@
 					"dof_downsample",
 					"composite_depth",
 					"dof_depth_downsample",
-					"solid_depth",
+					"solid_depth"
+				],
+			},
+			{
+				name: "final",
+				program: "final",
+				framebuffer: "copy_to_main",
+				samplerImages: [
+					"pre_final",
 					"exposure",
 					"precise_uniforms"
 				],
