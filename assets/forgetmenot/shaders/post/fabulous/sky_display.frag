@@ -6,6 +6,7 @@
 uniform sampler2D u_transmittance;
 uniform sampler2D u_sky_day;
 uniform sampler2D u_sky_night;
+uniform sampler2D u_moon_texture;
 
 uniform sampler2D u_solid_depth;
 
@@ -21,7 +22,7 @@ void main() {
 		return;
 	}
 
-	vec2 jitteredCoord = gl_FragCoord.xy;// + getTaaOffset(frx_renderFrames);
+	vec2 jitteredCoord = gl_FragCoord.xy;
 	vec3 viewDir = normalize(setupSceneSpacePos(jitteredCoord / frxu_size, 1.0));
 
 	fragColor.rgb = getSkyAndClouds(
@@ -29,6 +30,7 @@ void main() {
 		u_transmittance,
 		u_sky_day,
 		u_sky_night,
+		u_moon_texture,
 		true // stars
 	);
 

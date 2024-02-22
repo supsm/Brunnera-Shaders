@@ -10,19 +10,20 @@ vec2 mirroredNoiseDXY(in vec2 uv) {
 }
 
 float getWaterHeight(in vec2 uv, in int octaves) {
-	float waterNoise = 0.0;
+	uv *= 2.0;
+	float lacunarity = 1.5;
+	float t = 0.4;
 
-	uv = rotate2D(uv, -PI / 6.0);
+	float noise = 0.01;
+	float amp = 0.5;
 
-	for(int i = 0; i < octaves; i++) {
-		uv *= vec2(1.7, 1.1);
-		uv = rotate2D(uv, PI / 3.0 / octaves);
-		uv += fmn_time * 0.1 * exp2(i);
-
-		waterNoise += smoothHash(uv) * exp2(-i + 1);
+	for (int i = 0; i < octaves; i++) {
+		noise += amp * smoothstep(0.0, 1.0, smoothHash(uv));
+		uv = ROTATE_30_DEGREES * uv * lacunarity + mod(frx_renderSeconds * t, 1000.0);
+		amp *= 0.5;
 	}
 
-	return waterNoise / octaves;
+	return (noise * (octaves + 1.0) / octaves) * 0.5;
 }
 float getWaterHeight(in vec2 uv) {
 	return getWaterHeight(uv, 5);
@@ -33,9 +34,9 @@ vec2 getWaterHeightDXY(in vec2 uv) {
 
 	float center = getWaterHeight(uv);
 	float diffX = (getWaterHeight(uv + vec2(sampleOffset, 0.0)) - center) / sampleOffset;
-	float diffY = (getWaterHeight(uv + vec2(0.0, sampleOffset)) - center) / sampleOffset;
+	float diffY = -(getWaterHeight(uv + vec2(0.0, sampleOffset)) - center) / sampleOffset;
 
-	return vec2(diffX, diffY) * 0.1;
+	return vec2(diffX, diffY) * sampleOffset * 100.0;
 }
 
 struct ParallaxResult {
@@ -47,8 +48,8 @@ struct ParallaxResult {
 ParallaxResult waterParallax(in mat3 tbn, in vec3 sceneSpacePos, in vec2 uv) {
 	vec3 viewDir = normalize(tbn * sceneSpacePos);
 
-	float minLayers = 8.0;
-	float maxLayers = 16.0;
+	float minLayers = 16.0;
+	float maxLayers = 32.0;
 
 	float numLayers = mix(maxLayers, minLayers, abs(dot(vec3(0.0, 0.0, 1.0), viewDir)));
 	float layerDepth = 1.0 / numLayers;

@@ -11,7 +11,6 @@
 uniform sampler2D u_color;
 uniform usampler2D u_data;
 uniform sampler2D u_depth;
-uniform sampler2D u_ambient_occlusion;
 
 uniform sampler2DArrayShadow u_shadow_map;
 uniform sampler2DArray u_shadow_tex;
@@ -23,8 +22,6 @@ uniform sampler2D u_multiscattering;
 uniform sampler2D u_sky_display;
 
 uniform sampler2D u_smooth_uniforms;
-
-uniform sampler2D u_light_data;
 
 in vec2 texcoord;
 
@@ -38,49 +35,6 @@ struct Hit {
 };
 
 const Hit NO_HIT = Hit(vec3(0.0), vec3(0.0), false);
-
-bool evaluateHit(in vec3 voxelPos) {
-	frx_LightData data = frx_getLightOcclusionData(u_light_data, voxelPos);
-
-	return data.isOccluder && data.isFullCube;
-}
-
-Hit raytraceAo(vec3 rayPos, vec3 rayDir, int raytraceLength) {
-	Hit hit = NO_HIT;
-
-	rayPos += frx_cameraPos;
-
-	vec3 stepSizes = 1.0 / abs(rayDir);
-	vec3 stepDir = sign(rayDir);
-	vec3 nextDist = (stepDir * 0.5 + 0.5 - fract(rayPos)) / rayDir;
-
-	ivec3 voxelPos = ivec3(floor(rayPos));
-	vec3 currentPos = rayPos;
-
-	for(int i = 0; i < raytraceLength; i++) {
-		float closestDist = min(nextDist.x, min(nextDist.y, nextDist.z));
-
-		currentPos += rayDir * closestDist;
-
-		vec3 stepAxis = vec3(lessThanEqual(nextDist, vec3(closestDist)));
-
-		voxelPos += ivec3(stepAxis * stepDir);
-
-		nextDist -= closestDist;
-		nextDist += stepSizes * stepAxis;
-
-		hit.normal = stepAxis;
-
-		if(evaluateHit(voxelPos)) {
-			hit.pos = currentPos - frx_cameraPos;
-			hit.normal *= -stepDir;
-			hit.success = true;
-			break;
-		}
-	}
-
-	return hit;
-}
 
 #ifdef FANCY_POWDER_SNOW
 	// Controls the scale of the voxel raytrace
@@ -161,12 +115,12 @@ void main() {
 
 	Material material = unpackMaterial(packedSample);
 
-	#ifdef REALISTIC_METALS
-		if(material.f0 > 0.999) {
-			fragColor = vec4(color, 1.0);
-			return;
-		}
-	#endif
+	// #ifdef REALISTIC_METALS
+	// 	if(material.f0 > 0.999) {
+	// 		fragColor = vec4(color, 1.0);
+	// 		return;
+	// 	}
+	// #endif
 
 	#ifdef FANCY_POWDER_SNOW
 		if(frx_playerEyeInSnow == 1 && !frx_isGui) {
@@ -195,74 +149,7 @@ void main() {
 		}
 	#endif
 
-	// float dist = rayIntersectSphere(vec3(0.0, -300.0, 100.0), viewDir, 10.0);
-	// vec3 spherePos = viewDir * max(0.0, dist);
-	// vec3 sphereNormal = normalize(cross(dFdx(spherePos), dFdy(spherePos)));
-
-	// if(dist >= 0.0 && dist < length(sceneSpacePos)) {
-	// 	sceneSpacePos = spherePos;
-	// 	color = vec3(1.0, 0.0, 0.0);
-	// 	material.fragNormal = sphereNormal;
-	// 	material.vertexNormal = sphereNormal;
-	// 	material.skyLight = 1.0;
-	// 	material.blockLight = 0.0;
-	// 	material.vanillaAo = 1.0;
-	// 	material.f0 = 0.0;
-	// 	material.roughness = 1.0;
-	// 	material.sssAmount = 0.0;
-	// 	material.isWater = 0.0;
-		
-	// 	depth = sceneSpaceToScreenSpace(spherePos).z;
-
-	// 	// fragColor.rgb = sphereNormal;
-	// 	// return;
-	// }
-
 	if(depth < 1.0) {
-		// #ifdef RTAO
-		// 	float ambientOcclusion = 1.0;
-
-		// 	const int numAoRays = RTAO_RAYS;
-		// 	const float rayContribution = 1.0 / numAoRays;
-
-		// 	const float aoStrength = RTAO_STRENGTH;
-
-		// 	const int aoRange = 2;
-
-		// 	vec3 rayPos = sceneSpacePos + material.vertexNormal * 0.01;
-
-		// 	vec3 sunBounceAmount = vec3(0.0);
-		// 	vec3 sunColor = textureLod(u_skybox, frx_skyLightVector, 2).rgb * 0.01;
-
-		// 	for(int i = 0; i < numAoRays; i++) {
-		// 		vec3 rayDir = generateCosineVector(material.fragNormal);
-
-		// 		Hit hit = raytraceAo(rayPos, rayDir, aoRange + 1);
-		// 		if(hit.success) {
-		// 			float distToHit = distance(hit.pos, rayPos);
-		// 			float aoDistanceFactor = smoothstep(float(aoRange), float(aoRange - 1), distToHit);
-
-		// 			sunBounceAmount += getShadowFactor(
-		// 				hit.pos,
-		// 				hit.normal,
-		// 				0.0,
-		// 				true,
-		// 				4, 
-		// 				u_shadow_tex, 
-		// 				u_shadow_map
-		// 			);
-
-		// 			ambientOcclusion -= rayContribution * aoStrength * aoDistanceFactor;
-		// 		}
-		// 	}
-
-		// 	sunBounceAmount *= sunColor;
-
-		// 	//ambientOcclusion = min(ambientOcclusion, material.vanillaAo);
-		// #else
-		// 	float ambientOcclusion = material.vanillaAo;
-		// #endif
-
 		#ifdef RTAO
 			vec2 rtaoSample = texture(u_ambient_occlusion, texcoord).rg;
 		#else
@@ -285,19 +172,17 @@ void main() {
 			u_transmittance,
 			u_shadow_map,
 			u_shadow_tex,
-			u_light_data,
 			true,
-			16,
+			8,
 			texelFetch(u_smooth_uniforms, ivec2(3, 0), 0).r,
 			rtaoSample.g
 		);
 
-//		color = vec3(ambientOcclusion);
-
-		//color = vec3(tMax * 0.5);
-
-		// color = texture(u_multiscattering, texcoord).rgb;
-		
+		#ifdef REALISTIC_METALS 
+		if(material.f0 > 0.999) {
+			color *= 0.5;
+		}
+		#endif		
 	} else {
 		color = texture(u_sky_display, texcoord).rgb;
 	}

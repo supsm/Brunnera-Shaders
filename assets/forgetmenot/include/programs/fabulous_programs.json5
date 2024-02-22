@@ -16,45 +16,9 @@
 				"u_transmittance",
 				"u_sky_day",
 				"u_sky_night",
+				"u_moon_texture",
 
 				"u_solid_depth"
-			]
-		},
-		{
-			name: "rtao",
-			vertexSource: "forgetmenot:shaders/post/frame_full.vert",
-			fragmentSource: "forgetmenot:shaders/post/fabulous/rtao/rtao.frag",
-			samplers: [
-				"u_depth",
-				"u_material_data",
-				"u_light_data",
-
-				"u_shadow_tex",
-				"u_shadow_map",
-
-				"u_previous_rtao",
-				"u_previous_depth",
-				"u_previous_normal"
-			]
-		},
-		{
-			name: "rtao_copy",
-			vertexSource: "forgetmenot:shaders/post/frame_full.vert",
-			fragmentSource: "forgetmenot:shaders/post/fabulous/rtao/rtao_copy.frag",
-			samplers: [
-				"u_rtao",
-				"u_depth",
-				"u_data",
-			]
-		},
-		{
-			name: "rtao_filter",
-			vertexSource: "forgetmenot:shaders/post/frame_full.vert",
-			fragmentSource: "forgetmenot:shaders/post/fabulous/rtao/rtao_filter.frag",
-			samplers: [
-				"u_rtao",
-				"u_depth",
-				"u_normal"
 			]
 		},
 		{
@@ -65,7 +29,6 @@
 				"u_color",
 				"u_data",
 				"u_depth",
-				"u_ambient_occlusion",
 
 				"u_shadow_map",
 				"u_shadow_tex",
@@ -77,8 +40,6 @@
 				"u_sky_display",
 
 				"u_smooth_uniforms",
-				
-				"u_light_data"
 			]
 		},
 		{
@@ -86,8 +47,6 @@
 			vertexSource: "forgetmenot:shaders/post/frame_full.vert",
 			fragmentSource: "forgetmenot:shaders/post/fabulous/sort.frag",
 			samplers: [
-				"u_previous_color",
-
 				"u_solid_color",
 				"u_solid_depth",
 				"u_translucent_color",
@@ -101,13 +60,9 @@
 				"u_particles_color",
 				"u_particles_depth",
 
-				"u_hi_depth_levels",
-
 				"u_data",
 
 				"u_skybox",
-
-				"u_smooth_uniforms"
 			]
 		},
 		{
@@ -118,8 +73,18 @@
 				"u_color",
 				"u_depth",
 
-				"u_aerial_perspective",
-				"u_skybox"
+				"u_transmittance",
+				"u_multiscattering",
+
+				"u_shadow_map",
+				"u_shadow_tex",
+
+				"u_skybox",
+				"u_hi_depth_levels",
+				"u_data",
+
+				"u_smooth_uniforms",
+				"u_previous_color",
 			]
 		}
 	]

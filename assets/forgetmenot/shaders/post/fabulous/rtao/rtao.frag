@@ -92,6 +92,9 @@ void main() {
 
 		const float rayContribution = 1.0 / numAoRays;
 
+		#ifndef RTAO_STRENGTH
+			#define RTAO_STRENGTH 1.0
+		#endif
 		const float aoStrength = RTAO_STRENGTH;
 
 		const int aoRange = 2;
@@ -99,7 +102,7 @@ void main() {
 		vec3 rayPos = sceneSpacePos + material.vertexNormal * 0.01;
 
 		for(int i = 0; i < numAoRays; i++) {
-			vec3 rayDir = generateCosineVector(material.fragNormal);
+			vec3 rayDir = generateCosineVector(material.vertexNormal);
 
 			Hit hit = raytraceAo(rayPos, rayDir, aoRange + 1);
 			if(hit.success) {

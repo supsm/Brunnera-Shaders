@@ -2,6 +2,94 @@
 	fabulous: {
 		passes: [
 			{
+				name: "sky_display",
+				program: "sky_display",
+				framebuffer: "sky_display",
+				samplerImages: [
+					"transmittance_lut",
+					"sky_lut_day",
+					"sky_lut_night",
+					"minecraft:textures/environment/moon_phases.png",
+
+					"solid_depth"
+				],
+				lod: 0
+			},
+			{
+				name: "deferred_solid",
+				program: "deferred_solid",
+				framebuffer: "deferred_solid",
+				samplerImages: [
+					"solid_color",
+					"solid_data",
+					"solid_depth",
+
+					"shadow_map",
+					"shadow_map",
+
+					"skybox",
+
+					"transmittance_lut",
+					"multiscattering_lut",
+					"sky_display",
+
+					"smooth_uniforms",
+				]
+			},
+			{
+				name: "sort",
+				program: "sort",
+				framebuffer: "sort",
+				samplerImages: [
+					"deferred_solid",
+					"solid_depth",
+					"translucent_color",
+					"translucent_depth",
+					"entity_color",
+					"entity_depth",
+					"weather_color",
+					"weather_depth",
+					"clouds_color",
+					"clouds_depth",
+					"particles_color",
+					"particles_depth",
+
+					"composite_data",
+
+					"skybox",
+				]
+			},
+			{
+				name: "post_sort",
+				program: "post_sort",
+				framebuffer: "copy_to_main",
+				samplerImages: [
+					"sort",
+					"composite_depth",
+
+					"transmittance_lut",
+					"multiscattering_lut",
+
+					"shadow_map",
+					"shadow_map",
+
+					"skybox",
+					"hi_depth_levels",
+					"composite_data",
+
+					"smooth_uniforms",
+					"sort_copy",
+				]
+			},
+			{
+				name: "sort_copy",
+				program: "copy",
+				framebuffer: "sort_copy",
+				samplerImages: [
+					"solid_color"
+				]
+			},
+			{
 				name: "hi_depth_levels_0",
 				program: "copy",
 				framebuffer: "hi_depth_levels_0",
@@ -45,143 +133,6 @@
 					"hi_depth_levels"
 				],
 				lod: 8
-			},
-			{
-				name: "sky_display",
-				program: "sky_display",
-				framebuffer: "sky_display",
-				samplerImages: [
-					"transmittance_lut",
-					"sky_lut_day",
-					"sky_lut_night",
-
-					"solid_depth"
-				],
-				lod: 0
-			},
-			{
-				name: "rtao",
-				program: "rtao",
-				framebuffer: "rtao",
-				samplerImages: [
-					"solid_depth",
-					"solid_data",
-					"frex:textures/auto/colored_lights",
-
-					"shadow_map",
-					"shadow_map",
-
-					"rtao_copy", // Previous rtao
-					"depth_copy", // Contains previous solid depth
-					"normal_copy", // Contains previous normals
-				],
-				toggleConfig: "rtao"
-			},
-			{
-				name: "rtao_copy",
-				program: "rtao_copy",
-				framebuffer: "rtao_copy",
-				samplerImages: [
-					"rtao",
-					"solid_depth",
-					"solid_data",
-				],
-				toggleConfig: "rtao"
-			},
-			{
-				name: "rtao_filter_0",
-				program: "rtao_filter",
-				framebuffer: "rtao_filter",
-				samplerImages: [
-					"rtao",
-					"solid_depth",
-					"vertex_normal"
-				],
-				toggleConfig: "rtao"
-			},
-			{
-				name: "rtao_filter_1",
-				program: "rtao_filter",
-				framebuffer: "rtao",
-				samplerImages: [
-					"rtao_filter",
-					"solid_depth",
-					"vertex_normal"
-				],
-				toggleConfig: "rtao"
-			},
-			{
-				name: "deferred_solid",
-				program: "deferred_solid",
-				framebuffer: "deferred_solid",
-				samplerImages: [
-					"solid_color",
-					"solid_data",
-					"solid_depth",
-					"rtao",
-
-					"shadow_map",
-					"shadow_map",
-
-					"skybox",
-
-					"transmittance_lut",
-					"multiscattering_lut",
-					"sky_display",
-
-					"smooth_uniforms",
-
-					"frex:textures/auto/colored_lights"
-				]
-			},
-			{
-				name: "sort",
-				program: "sort",
-				framebuffer: "sort",
-				samplerImages: [
-					"sort_copy",
-
-					"deferred_solid",
-					"solid_depth",
-					"translucent_color",
-					"translucent_depth",
-					"entity_color",
-					"entity_depth",
-					"weather_color",
-					"weather_depth",
-					"clouds_color",
-					"clouds_depth",
-					"particles_color",
-					"particles_depth",
-
-					"hi_depth_levels",
-
-					"composite_data",
-
-					"skybox",
-
-					"smooth_uniforms"
-				]
-			},
-			{
-				name: "post_sort",
-				program: "post_sort",
-				framebuffer: "copy_to_main",
-				samplerImages: [
-					"sort",
-					"composite_depth",
-
-					"aerial_perspective",
-					"skybox"
-				]
-			},
-			{
-				name: "sort_copy",
-				program: "copy",
-				framebuffer: "sort_copy",
-				samplerImages: [
-					"sort"
-				]
 			}
 		]
 	}
