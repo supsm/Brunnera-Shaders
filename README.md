@@ -4,6 +4,9 @@
 
 **Canvas** is a client-side renderer mod that uses shaders for advanced rendering with the goal of having a modern and very flexible design for high performance and better readability. The shader system is entirely different from Optifine and Iris & Sodium and as such, Brunnera won't work with any of these mods! See the `how to use` section for installation instructions. 
 
+### Why is it called Brunnera?
+It's the only plant name closely related to the forget-me-not (genus Myosotis) that isn't a rubbish name for a shader pack. The flowers look pretty similar too.
+
 ## Notice
 
 If you're a developer or mod hoster, Brunnera is licensed under the [LGPL v3.0](https://www.gnu.org/licenses/lgpl-3.0.en.html) (following Forget-me-not), so please make sure to read over the terms of the LGPL if you use any of Brunnera or Forget-me-not's original code or distribute it.
