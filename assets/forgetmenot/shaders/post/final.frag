@@ -130,7 +130,7 @@ void main() {
 	// axial chromatic aberration
 	// keep this subtle or very laggy
 	// TODO: lod?
-	const vec3 axi_focus_err = 2 * focus_error;
+	const vec3 axi_focus_err = 0.8 * focus_error;
 	color.r = sample_gaussian(texcoord * coord_mults.r + lat_focus_err.r, axi_focus_err.r, 2).r;
 	color.g = sample_gaussian(texcoord * coord_mults.g + lat_focus_err.g, axi_focus_err.g, 2).g;
 	color.b = sample_gaussian(texcoord * coord_mults.b + lat_focus_err.b, axi_focus_err.b, 2).b;
