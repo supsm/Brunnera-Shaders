@@ -124,8 +124,7 @@
 				],
 			},
 			{
-				name: "dof_d0", program: "gem_preprocess", framebuffer: "dof_d0", samplerImages: ["final"],
-				toggleConfig: "fast_dof"
+				name: "dof_d0", program: "gem_preprocess", framebuffer: "dof_d0", samplerImages: ["final"]
 			},
 			{
 				name: "dof_d1", program: "dof_downsample", framebuffer: "dof_d1", samplerImages: ["dof_downsample"],
