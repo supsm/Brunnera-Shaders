@@ -6,7 +6,7 @@
 			elements: {
 				cam_type: {
 					default: "Digital",
-					choices: ["Digital", "Film"],
+					choices: ["Digital", "Film1", "Film2", "Film3"],
 					enum: true,
 					prefix: "cam_type_",
 					nameKey: "config.forgetmenot.name.cam_type",
@@ -17,7 +17,15 @@
 					min: 1.4,
 					max: 32.0,
 					nameKey: "config.forgetmenot.name.aperture",
-					descriptionKey: "config.forgetmenot.desc.aperture",
+					descriptionKey: "config.forgetmenot.desc.aperture"
+				},
+				lens_type: {
+					default: "Achromat",
+					choices: ["Simple", "Achromat"],
+					enum: true,
+					prefix: "lens_type_",
+					nameKey: "config.forgetmenot.name.lens_type",
+					descirptionKey: "config.forgetmenot.desc.lens_type"
 				}
 			}
 		},
@@ -25,10 +33,22 @@
 			includeToken: "forgetmenot:cam_effects",
 			categoryKey: "config.forgetmenot.category.cam_effects",
 			elements: {
+				dof: {
+					default: true,
+					nameKey: "config.forgetmenot.name.dof",
+					descriptionKey: "config.forgetmenot.desc.dof"
+				},
 				fast_dof: {
 					default: true,
 					nameKey: "config.formetmenot.name.fast_dof",
 					descriptionKey: "config.formetmenot.desc.fast_dof"
+				},
+				dof_strength: {
+					default: 2.0,
+					min: 0.1,
+					max: 32.0,
+					nameKey: "config.forgetmenot.name.dof_strength",
+					descriptionKey: "config.forgetmenot.desc.dof_strength"
 				},
 				gem_power: {
 					default: 2.0,
@@ -36,6 +56,31 @@
 					max: 4.0,
 					nameKey: "config.forgetmenot.name.gem_power",
 					descriptionKey: "config.forgetmenot.desc.gem_power"
+				},
+				chromatic_aberration: {
+					default: true,
+					nameKey: "config.forgetmenot.name.chromatic_aberration",
+					descriptionKey: "config.forgetmenot.desc.chromatic_aberration"
+				},
+				lateral_ca_strength: {
+					// TODO: this is in negative log
+					default: 3.0,
+					min: 1.0,
+					max: 10.0,
+					nameKey: "config.forgetmenot.name.lateral_ca_strength",
+					descriptionKey: "config.forgetmenot.desc.lateral_ca_strength"
+				},
+				axial_ca_strength: {
+					default: 2.0,
+					min: 0.0,
+					max: 16.0,
+					nameKey: "config.forgetmenot.name.axial_ca_strength",
+					descriptionKey: "config.forgetmenot.desc.axial_ca_strength"
+				},
+				sensor_noise: {
+					default: true,
+					nameKey: "config.forgetmenot.name.sensor_noise",
+					descriptionKey: "config.forgetmenot.desc.sensor_noise",
 				},
 				interlacing: {
 					default: false,
