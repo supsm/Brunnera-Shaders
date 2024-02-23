@@ -22,34 +22,34 @@
 				lod: 0,
 			},
 			{
-				name: "bloom_d0", program: "bloom_downsample", framebuffer: "bloom_d0", samplerImages: ["taa_copy"], toggleConfig: "enable_bloom"
+				name: "bloom_d0", program: "downsample", framebuffer: "bloom_d0", samplerImages: ["taa_copy"], toggleConfig: "enable_bloom"
 			},
 			{
-				name: "bloom_d1", program: "bloom_downsample", framebuffer: "bloom_d1", samplerImages: ["bloom_downsample"],
+				name: "bloom_d1", program: "downsample", framebuffer: "bloom_d1", samplerImages: ["bloom_downsample"],
 				lod: 1, toggleConfig: "enable_bloom"
 			},
 			{
-				name: "bloom_d2", program: "bloom_downsample", framebuffer: "bloom_d2", samplerImages: ["bloom_downsample"],
+				name: "bloom_d2", program: "downsample", framebuffer: "bloom_d2", samplerImages: ["bloom_downsample"],
 				lod: 2, toggleConfig: "enable_bloom"
 			},
 			{
-				name: "bloom_d3", program: "bloom_downsample", framebuffer: "bloom_d3", samplerImages: ["bloom_downsample"],
+				name: "bloom_d3", program: "downsample", framebuffer: "bloom_d3", samplerImages: ["bloom_downsample"],
 				lod: 3, toggleConfig: "enable_bloom"
 			},
 			{
-				name: "bloom_d4", program: "bloom_downsample", framebuffer: "bloom_d4", samplerImages: ["bloom_downsample"],
+				name: "bloom_d4", program: "downsample", framebuffer: "bloom_d4", samplerImages: ["bloom_downsample"],
 				lod: 4, toggleConfig: "enable_bloom"
 			},
 			{
-				name: "bloom_d5", program: "bloom_downsample", framebuffer: "bloom_d5", samplerImages: ["bloom_downsample"],
+				name: "bloom_d5", program: "downsample", framebuffer: "bloom_d5", samplerImages: ["bloom_downsample"],
 				lod: 5, toggleConfig: "enable_bloom"
 			},
 			{
-				name: "bloom_d6", program: "bloom_downsample", framebuffer: "bloom_d6", samplerImages: ["bloom_downsample"],
+				name: "bloom_d6", program: "downsample", framebuffer: "bloom_d6", samplerImages: ["bloom_downsample"],
 				lod: 6, toggleConfig: "enable_bloom"
 			},
 			{
-				name: "bloom_d7", program: "bloom_downsample", framebuffer: "bloom_d7", samplerImages: ["bloom_downsample"],
+				name: "bloom_d7", program: "downsample", framebuffer: "bloom_d7", samplerImages: ["bloom_downsample"],
 				lod: 7, toggleConfig: "enable_bloom"
 			},
 			{
@@ -127,55 +127,55 @@
 				name: "dof_d0", program: "gem_preprocess", framebuffer: "dof_d0", samplerImages: ["final"]
 			},
 			{
-				name: "dof_d1", program: "dof_downsample", framebuffer: "dof_d1", samplerImages: ["dof_downsample"],
+				name: "dof_d1", program: "downsample", framebuffer: "dof_d1", samplerImages: ["dof_downsample"],
 				lod: 1, toggleConfig: "fast_dof"
 			},
 			{
-				name: "dof_d2", program: "dof_downsample", framebuffer: "dof_d2", samplerImages: ["dof_downsample"],
+				name: "dof_d2", program: "downsample", framebuffer: "dof_d2", samplerImages: ["dof_downsample"],
 				lod: 2, toggleConfig: "fast_dof"
 			},
 			{
-				name: "dof_d3", program: "dof_downsample", framebuffer: "dof_d3", samplerImages: ["dof_downsample"],
+				name: "dof_d3", program: "downsample", framebuffer: "dof_d3", samplerImages: ["dof_downsample"],
 				lod: 3, toggleConfig: "fast_dof"
 			},
 			{
-				name: "dof_d4", program: "dof_downsample", framebuffer: "dof_d4", samplerImages: ["dof_downsample"],
+				name: "dof_d4", program: "downsample", framebuffer: "dof_d4", samplerImages: ["dof_downsample"],
 				lod: 4, toggleConfig: "fast_dof"
 			},
 			{
-				name: "dof_d5", program: "dof_downsample", framebuffer: "dof_d5", samplerImages: ["dof_downsample"],
+				name: "dof_d5", program: "downsample", framebuffer: "dof_d5", samplerImages: ["dof_downsample"],
 				lod: 5, toggleConfig: "fast_dof"
 			},
 			{
-				name: "dof_d6", program: "dof_downsample", framebuffer: "dof_d6", samplerImages: ["dof_downsample"],
+				name: "dof_d6", program: "downsample", framebuffer: "dof_d6", samplerImages: ["dof_downsample"],
 				lod: 6, toggleConfig: "fast_dof"
 			},
 			{
-				name: "dof_depth_d0", program: "dof_depth_downsample", framebuffer: "dof_depth_d0", samplerImages: ["composite_depth"],
+				name: "dof_depth_d0", program: "downsample", framebuffer: "dof_depth_d0", samplerImages: ["composite_depth"],
 				toggleConfig: "fast_dof"
 			},
 			{
-				name: "dof_depth_d1", program: "dof_depth_downsample", framebuffer: "dof_depth_d1", samplerImages: ["dof_depth_downsample"],
+				name: "dof_depth_d1", program: "downsample", framebuffer: "dof_depth_d1", samplerImages: ["dof_depth_downsample"],
 				lod: 1, toggleConfig: "fast_dof"
 			},
 			{
-				name: "dof_depth_d2", program: "dof_depth_downsample", framebuffer: "dof_depth_d2", samplerImages: ["dof_depth_downsample"],
+				name: "dof_depth_d2", program: "downsample", framebuffer: "dof_depth_d2", samplerImages: ["dof_depth_downsample"],
 				lod: 2, toggleConfig: "fast_dof"
 			},
 			{
-				name: "dof_depth_d3", program: "dof_depth_downsample", framebuffer: "dof_depth_d3", samplerImages: ["dof_depth_downsample"],
+				name: "dof_depth_d3", program: "downsample", framebuffer: "dof_depth_d3", samplerImages: ["dof_depth_downsample"],
 				lod: 3, toggleConfig: "fast_dof"
 			},
 			{
-				name: "dof_depth_d4", program: "dof_depth_downsample", framebuffer: "dof_depth_d4", samplerImages: ["dof_depth_downsample"],
+				name: "dof_depth_d4", program: "downsample", framebuffer: "dof_depth_d4", samplerImages: ["dof_depth_downsample"],
 				lod: 4, toggleConfig: "fast_dof"
 			},
 			{
-				name: "dof_depth_d5", program: "dof_depth_downsample", framebuffer: "dof_depth_d5", samplerImages: ["dof_depth_downsample"],
+				name: "dof_depth_d5", program: "downsample", framebuffer: "dof_depth_d5", samplerImages: ["dof_depth_downsample"],
 				lod: 5, toggleConfig: "fast_dof"
 			},
 			{
-				name: "dof_depth_d6", program: "dof_depth_downsample", framebuffer: "dof_depth_d6", samplerImages: ["dof_depth_downsample"],
+				name: "dof_depth_d6", program: "downsample", framebuffer: "dof_depth_d6", samplerImages: ["dof_depth_downsample"],
 				lod: 6, toggleConfig: "fast_dof"
 			},
 			{
@@ -205,11 +205,38 @@
 				],
 			},
 			{
+				name: "pre_final_d0", program: "copy", framebuffer: "pre_final_d0", samplerImages: ["pre_final"]
+			},
+			{
+				name: "pre_final_d1", program: "downsample", framebuffer: "pre_final_d1", samplerImages: ["pre_final_downsample"],
+				lod: 1
+			},
+			{
+				name: "pre_final_d2", program: "downsample", framebuffer: "pre_final_d2", samplerImages: ["pre_final_downsample"],
+				lod: 2
+			},
+			{
+				name: "pre_final_d3", program: "downsample", framebuffer: "pre_final_d3", samplerImages: ["pre_final_downsample"],
+				lod: 3
+			},
+			{
+				name: "pre_final_d4", program: "downsample", framebuffer: "pre_final_d4", samplerImages: ["pre_final_downsample"],
+				lod: 4
+			},
+			{
+				name: "pre_final_d5", program: "downsample", framebuffer: "pre_final_d5", samplerImages: ["pre_final_downsample"],
+				lod: 5
+			},
+			{
+				name: "pre_final_d6", program: "downsample", framebuffer: "pre_final_d6", samplerImages: ["pre_final_downsample"],
+				lod: 6
+			},
+			{
 				name: "final",
 				program: "final",
 				framebuffer: "copy_to_main",
 				samplerImages: [
-					"pre_final",
+					"pre_final_downsample",
 					"exposure",
 					"precise_uniforms"
 				],

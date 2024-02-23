@@ -23,7 +23,7 @@
 			]
 		},
 		{
-			name: "bloom_downsample",
+			name: "downsample",
 			vertexSource: "forgetmenot:shaders/post/frame_full.vert",
 			fragmentSource: "forgetmenot:shaders/post/tent_downsample.frag",
 			samplers: [
@@ -75,22 +75,6 @@
 			name: "gem_preprocess",
 			vertexSource: "forgetmenot:shaders/post/frame_full.vert",
 			fragmentSource: "forgetmenot:shaders/post/gem_preprocess.frag",
-			samplers: [
-				"u_color"
-			]
-		}
-		{
-			name: "dof_downsample",
-			vertexSource: "forgetmenot:shaders/post/frame_full.vert",
-			fragmentSource: "forgetmenot:shaders/post/tent_downsample.frag",
-			samplers: [
-				"u_color"
-			]
-		},
-		{
-			name: "dof_depth_downsample",
-			vertexSource: "forgetmenot:shaders/post/frame_full.vert",
-			fragmentSource: "forgetmenot:shaders/post/tent_downsample.frag",
 			samplers: [
 				"u_color"
 			]

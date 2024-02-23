@@ -76,43 +76,13 @@ float tonemap_approx(float x,
 		(f * intpow(x, 5) + g * intpow(x, 4) + h * intpow(x, 3) + i * intpow(x, 2) + j * x + k);
 }
 
-// sample u_color, centered at `center` with standard deviation of `stddev`
+// sample u_color with an approximation of gaussian blur using downsamples,
+// centered at `center` with standard deviation of `stddev`
 // and square kernel with diameter `kernel_size_stddevs` * `stddev`
-vec3 sample_gaussian(vec2 center, float stddev, float kernel_size_stddevs = 2, vec2 step_size = vec2(1))
+vec3 sample_gaussian_approx(vec2 center, float stddev, float kernel_size_stddevs = 2, vec2 step_size = vec2(1))
 {
-	if (stddev == 0)
-	{
-		return texture(u_color, center).rgb;
-	}
-
-	// center in pixels
-	vec2 center_px = center * frxu_size;
-	vec2 pixel_size = 1.0 / frxu_size;
-	vec2 step_one = step_size * pixel_size;
-	// log kernel size to make higher blurs use less samples
-	// yes this will blur less but it's probably ok
-	float kernel_size = kernel_size_stddevs * stddev;
-	// shrink kernel size to distance to edge, if necessary
-	// TODO: make stddev resolution-aware?
-	vec2 half_kernel_size_f = min(vec2(kernel_size), frxu_size * min(center, 1 - center)) * pixel_size;
-
-	vec3 sum = vec3(0);
-	float mult_sum = 0;
-	for (float i = center.x - half_kernel_size_f.x; i <= center.x + half_kernel_size_f.x; i += step_one.x)
-	{
-		for (float j = center.y - half_kernel_size_f.y; j <= center.y + half_kernel_size_f.y; j += step_one.y)
-		{
-			float dist = distance(vec2(i, j) * frxu_size, center_px) / stddev;
-
-			vec3 sample = texture(u_color, vec2(i, j)).rgb;
-			// gaussian filter
-			// we can leave out 1/(stddev*sqrt(2*PI)) because constants cancel out in division
-			float multiplier = exp(-0.5 * dist * dist);
-			sum += sample * multiplier;
-			mult_sum += multiplier;
-		}
-	}
-	return sum / mult_sum;
+	float lod = clamp(log2(stddev) - 1, 0, 6);
+	return textureLod(u_color, center, lod).rgb;
 }
 
 void main() {
@@ -128,12 +98,10 @@ void main() {
 	const vec3 lat_focus_err = 0.001 * focus_error;
 	const vec3 coord_mults = (vec3(1) - 2 * lat_focus_err);
 	// axial chromatic aberration
-	// keep this subtle or very laggy
-	// TODO: lod?
-	const vec3 axi_focus_err = 0.8 * focus_error;
-	color.r = sample_gaussian(texcoord * coord_mults.r + lat_focus_err.r, axi_focus_err.r, 2).r;
-	color.g = sample_gaussian(texcoord * coord_mults.g + lat_focus_err.g, axi_focus_err.g, 2).g;
-	color.b = sample_gaussian(texcoord * coord_mults.b + lat_focus_err.b, axi_focus_err.b, 2).b;
+	const vec3 axi_focus_err = 2 * focus_error;
+	color.r = sample_gaussian_approx(texcoord * coord_mults.r + lat_focus_err.r, axi_focus_err.r, 2).r;
+	color.g = sample_gaussian_approx(texcoord * coord_mults.g + lat_focus_err.g, axi_focus_err.g, 2).g;
+	color.b = sample_gaussian_approx(texcoord * coord_mults.b + lat_focus_err.b, axi_focus_err.b, 2).b;
 
 	vec3 finalColor = color.rgb;
 

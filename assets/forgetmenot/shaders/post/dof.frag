@@ -40,7 +40,7 @@ vec4 sample_gaussian(vec2 center, float stddev, float kernel_size_stddevs = 2, v
 	float lod = clamp(log2(stddev) - 2, 0, 6);
 	if (lod != 0)
 	{
-		stddev = 4; // divide stddev so transitions are smoother
+		stddev = 4; // fix stddev so transitions are smoother
 		if (focus_depth == -1) { depth_multiplier = 0; } // disable depth check for color lod
 	}
 #else
@@ -137,7 +137,6 @@ vec4 sample_gaussian(vec2 center, float stddev, float kernel_size_stddevs = 2, v
 
 void main()
 {
-
 	// TODO: don't instantly change focus, make it transition somewhat slowly
 	float focus_depth = texture(u_depth, vec2(0.5)).x;
 	//float pixel_depth = min(texture(u_depth, texcoord).x, texture(u_hand_depth, texcoord).x);
