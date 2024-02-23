@@ -1,7 +1,6 @@
 #include forgetmenot:shaders/lib/inc/header.glsl
 
 uniform sampler2D u_exposure;
-uniform sampler2D u_precise_uniforms;
 
 uniform mat4 frxu_frameProjectionMatrix;
 

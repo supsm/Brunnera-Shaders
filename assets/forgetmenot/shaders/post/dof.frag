@@ -137,6 +137,8 @@ vec4 sample_gaussian(vec2 center, float stddev, float kernel_size_stddevs = 2, v
 
 void main()
 {
+	const float aperture_diameter = 1.0 / APERTURE;
+
 	// TODO: don't instantly change focus, make it transition somewhat slowly
 	float focus_depth = texture(u_depth, vec2(0.5)).x;
 	//float pixel_depth = min(texture(u_depth, texcoord).x, texture(u_hand_depth, texcoord).x);
@@ -155,7 +157,7 @@ void main()
 	} 
 	float pixel_depth = pixel_depth_info.x;
 	// TODO: factor in aperture
-	float dof_strength = min(200 * abs(focus_depth - pixel_depth), 64); // cap at 64 pixels to avoid excessive lag
+	float dof_strength = min(400 * aperture_diameter * abs(focus_depth - pixel_depth), 64); // cap at 64 pixels to avoid excessive lag
 	// allow forward blending (depth_multiplier = 0) if sample took on depth of another pixel (pixel_depth_info.z > 1)
 	vec3 color = sample_gaussian(texcoord, dof_strength, 2, vec2(1.5), (pixel_depth_info.z < 1.05 ? 1.02 : 0)).rgb;
 

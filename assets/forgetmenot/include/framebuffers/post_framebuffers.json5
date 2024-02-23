@@ -207,6 +207,14 @@
 					image: "precise_uniforms"
 				}
 			]
+		},
+		{
+			name: "precise_uniforms_copy",
+			colorAttachments: [
+				{
+					image: "precise_uniforms_copy"
+				}
+			]
 		}
 	]
 }

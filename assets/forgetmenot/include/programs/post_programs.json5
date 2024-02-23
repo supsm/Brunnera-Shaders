@@ -105,7 +105,7 @@
 			name: "precise_uniforms",
 			vertexSource: "forgetmenot:shaders/post/frame_full.vert",
 			fragmentSource: "forgetmenot:shaders/post/precise_uniforms.frag",
-			samplers: []
+			samplers: ["u_precise_uniforms_copy"]
 		}
 	]
 }

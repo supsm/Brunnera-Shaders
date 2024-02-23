@@ -1,6 +1,7 @@
 #include forgetmenot:shaders/lib/inc/header.glsl 
 
 void frx_pipelineVertex() {
+	// TODO: can we somehow store FOV somewhere for use later?
 	initGlobals();
 
 	if(frx_modelOriginScreen) {

@@ -5,6 +5,7 @@
 #include forgetmenot:cam_effects
 
 uniform sampler2D u_color;
+uniform sampler2D u_precise_uniforms;
 
 in vec2 texcoord;
 in float exposure;
@@ -91,6 +92,8 @@ vec3 sample_gaussian_approx(vec2 center, float stddev)
 void main() {
 	initGlobals();
 
+	float frame_time = texelFetch(u_precise_uniforms, ivec2(1, 0), 0).x;
+
 	vec3 color;
 
 	// Chromatic Aberration
@@ -110,7 +113,7 @@ void main() {
 	vec3 finalColor = color.rgb;
 
 	// TODO: AWB or smth
-	float expo = clamp(exposure, 0.001, 0.002);
+	float expo = exposure;//clamp(exposure, 0.001, 0.002);
 
 	// aces tonemap
 	//finalColor = FRX_ACES_INPUT_MATRIX * finalColor;
@@ -178,18 +181,19 @@ void main() {
 
 
 	// arbitrary units
-	float iso = sqrt(expo);
+	// 1 / APERTURE = aperture diameter
+	float iso = 0.002 / sqrt(expo * frame_time) * APERTURE;
 
 #if CAM_TYPE == CAM_TYPE_DIGITAL
 	// digital noise (additive and subtractive, per-channel)
 	// exposure affects noise directly
-	float noisiness = 0.001;
-	finalColor += vec4(normal_distribution(vec2(randomFloat(), randomFloat()), 0, noisiness / iso), normal_distribution(vec2(randomFloat(), randomFloat()), 0, noisiness / iso)).xyz;
+	float noisiness = 0.01;
+	finalColor += vec4(normal_distribution(vec2(randomFloat(), randomFloat()), 0, noisiness * iso), normal_distribution(vec2(randomFloat(), randomFloat()), 0, noisiness * iso)).xyz;
 	finalColor = clamp01(finalColor);
 #else
 	// film grain (multiplicative, monochromatic)
 	// brightness simulates grain size, which is affected by iso
-	finalColor *= 1 - max(0, normal_distribution(vec2(randomFloat(), randomFloat()), 0, min(0.5, 0.005 / iso)).x) * float(randomFloat() > 0.2);
+	finalColor *= 1 - max(0, normal_distribution(vec2(randomFloat(), randomFloat()), 0, min(0.5, 0.05 * iso)).x) * float(randomFloat() > 0.2);
 	finalColor = clamp01(finalColor);
 #endif
 

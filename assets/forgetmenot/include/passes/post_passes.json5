@@ -273,12 +273,20 @@
 				toggleConfig: "interlacing"
 			},
 			{
+				name: "precise_uniforms_copy",
+				program: "copy",
+				framebuffer: "precise_uniforms_copy",
+				width: 4,
+				height: 1,
+				samplerImages: ["precise_uniforms"]
+			},
+			{
 				name: "precise_uniforms",
 				program: "precise_uniforms",
 				framebuffer: "precise_uniforms",
 				width: 4,
 				height: 1,
-				samplerImages: []
+				samplerImages: ["precise_uniforms_copy"]
 			}
 		]
 	}
