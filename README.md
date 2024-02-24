@@ -65,11 +65,10 @@ If you're a developer or mod hoster, Brunnera is licensed under the [LGPL v3.0](
 
 Brunnera wouldn't exist if it weren't for Ambrosia, as well as the help of people like fewizz, spiralhalo, Grondag, and many others from the Canvas community for contributing and testing. Many thanks to:
 
-- [Forget-me-not](https://github.com/ambrosia13/forgetmenot-shaders)
+- [Forget-me-not](https://github.com/ambrosia13/forgetmenot-shaders) for the base and heavy lifting of this shader
 - The [shaderLABS discord channel #snippets](https://discord.com/channels/237199950235041794/525510804494221312/959153316401655849) for many useful code snippets
 - [Lumi Lights](https://github.com/spiralhalo/LumiLights) by spiralhalo for lots of different inspiration & help, and also references for a working TAA implementation
 - [lomo](https://github.com/fewizz/lomo/releases) by fewizz for inspiration for many different things, as well as the raytracer and lots of invaluable contributions
-- [@jahan.artt](https://www.instagram.com/jahan.artt/?hl=en) for the icon!
 
 ## Discord
 
