@@ -19,25 +19,22 @@ void main() {
 
 	for(int x = 0; x < size.x; x++) {
 		for(int y = 0; y < size.y; y++) {
-			float distToCenter = length(vec2(x, y) / size - 0.5);
 			// circle
 			if (length((vec2(x, y) - 0.5 * size) / min(size.x, size.y)) >= 0.3)
 			{
 				continue;
 			}
-			float currentWeight = (1 / distToCenter) * (1 / distToCenter);
 			float currentSample = frx_luminance(texelFetch(u_color, ivec2(x, y), luminanceLod).rgb);
 
-			avgLuminance += currentSample * currentWeight;
-			totalWeight += currentWeight;
-
-			avgLuminance += currentSample;
+			avgLuminance += currentSample; 
+			totalWeight++;
 		}
 	}
 
-	avgLuminance /= size.x * size.y;
-
 	avgLuminance /= totalWeight;
+
+	// not great but the other values relating to exposure were already set
+	avgLuminance *= 0.004;
 
 	float prevLuminance = texelFetch(u_previous, ivec2(0), 0).r;
 	float frame_time = texelFetch(u_precise_uniforms, ivec2(1, 0), 0).x;

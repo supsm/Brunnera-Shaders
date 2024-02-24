@@ -9,6 +9,8 @@
 	"config.forgetmenot.desc.aperture": "Size of lens aperture in f-stops. Affects DoF, chromatic aberration, and noise (via exposure).",
 
 	"config.forgetmenot.category.cam_effects": "Camera Effects",
+	"config.formetmenot.name.dof": "Depth-of-Field (DoF)",
+	"config.formetmenot.desc.dof": "Enables depth-of-field effect that blurs out-of-focus objects",
 	"config.formetmenot.name.fast_dof": "Fast DoF",
 	"config.formetmenot.desc.fast_dof": "Use faster, but lower quality depth-of-field effect (based on lod).",
 	"config.formetmenot.name.dof_strength": "DoF Strength",
