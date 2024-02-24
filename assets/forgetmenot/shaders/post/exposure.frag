@@ -20,7 +20,12 @@ void main() {
 	for(int x = 0; x < size.x; x++) {
 		for(int y = 0; y < size.y; y++) {
 			float distToCenter = length(vec2(x, y) / size - 0.5);
-			float currentWeight = min(0.5, (1 / distToCenter) * (1 / distToCenter));
+			// circle
+			if (length((vec2(x, y) - 0.5 * size) / min(size.x, size.y)) >= 0.3)
+			{
+				continue;
+			}
+			float currentWeight = (1 / distToCenter) * (1 / distToCenter);
 			float currentSample = frx_luminance(texelFetch(u_color, ivec2(x, y), luminanceLod).rgb);
 
 			avgLuminance += currentSample * currentWeight;
