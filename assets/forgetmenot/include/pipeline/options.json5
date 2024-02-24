@@ -45,14 +45,14 @@
 				},
 				dof_strength: {
 					default: 4.0,
-					min: 0.1,
+					min: 0.0,
 					max: 32.0,
 					nameKey: "config.forgetmenot.name.dof_strength",
 					descriptionKey: "config.forgetmenot.desc.dof_strength"
 				},
 				gem_power: {
 					default: 2.0,
-					min: -4.0,
+					min: -1.0,
 					max: 4.0,
 					nameKey: "config.forgetmenot.name.gem_power",
 					descriptionKey: "config.forgetmenot.desc.gem_power"
@@ -63,17 +63,16 @@
 					descriptionKey: "config.forgetmenot.desc.chromatic_aberration"
 				},
 				lateral_ca_strength: {
-					// TODO: this is in negative log
-					default: 3.0,
-					min: 1.0,
-					max: 10.0,
+					default: -3.0,
+					min: -10.0,
+					max: -1.0,
 					nameKey: "config.forgetmenot.name.lateral_ca_strength",
 					descriptionKey: "config.forgetmenot.desc.lateral_ca_strength"
 				},
 				axial_ca_strength: {
-					default: 2.0,
+					default: 7.0,
 					min: 0.0,
-					max: 16.0,
+					max: 64.0,
 					nameKey: "config.forgetmenot.name.axial_ca_strength",
 					descriptionKey: "config.forgetmenot.desc.axial_ca_strength"
 				},

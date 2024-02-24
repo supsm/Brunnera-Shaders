@@ -157,7 +157,7 @@ void main()
 	} 
 	float pixel_depth = pixel_depth_info.x;
 	// TODO: factor in aperture
-	float dof_strength = min(400 * aperture_diameter * abs(focus_depth - pixel_depth), 64); // cap at 64 pixels to avoid excessive lag
+	float dof_strength = min(DOF_STRENGTH * 100 * aperture_diameter * abs(focus_depth - pixel_depth), 16 * DOF_STRENGTH); // cap at 64 pixels to avoid excessive lag
 	// allow forward blending (depth_multiplier = 0) if sample took on depth of another pixel (pixel_depth_info.z > 1)
 	vec3 color = sample_gaussian(texcoord, dof_strength, 2, vec2(1.5), (pixel_depth_info.z < 1.05 ? 1.02 : 0)).rgb;
 

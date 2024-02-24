@@ -93,22 +93,27 @@ void main() {
 	initGlobals();
 
 	float frame_time = texelFetch(u_precise_uniforms, ivec2(1, 0), 0).x;
+	const float aperture_diameter = 1.0 / APERTURE;
 
 	vec3 color;
 
+#ifdef CHROMATIC_ABERRATION
 	// Chromatic Aberration
 	// must be positive or lateral chromatic aberration will cause artifacts at sides
 	// TODO: lateral artifacts can be solved by shifting so that minimum = 0
 	const vec3 focus_error = vec3(2.1, 0, 2.7);
 	// lateral chromatic aberration
 	// save coordinate multiplier and sample later
-	const vec3 lat_focus_err = 0.001 * focus_error;
+	const vec3 lat_focus_err = pow(10, LATERAL_CA_STRENGTH) * focus_error;
 	const vec3 coord_mults = (vec3(1) - 2 * lat_focus_err);
 	// axial chromatic aberration
-	const vec3 axi_focus_err = 2 * focus_error;
+	const vec3 axi_focus_err = AXIAL_CA_STRENGTH * focus_error * aperture_diameter;
 	color.r = sample_gaussian_approx(texcoord * coord_mults.r + lat_focus_err.r, axi_focus_err.r).r;
 	color.g = sample_gaussian_approx(texcoord * coord_mults.g + lat_focus_err.g, axi_focus_err.g).g;
 	color.b = sample_gaussian_approx(texcoord * coord_mults.b + lat_focus_err.b, axi_focus_err.b).b;
+#else
+	color = texture(u_color, texcoord).rgb;
+#endif
 
 	vec3 finalColor = color.rgb;
 
@@ -180,6 +185,7 @@ void main() {
 #endif
 
 
+#ifdef SENSOR_NOISE
 	// arbitrary units
 	// 1 / APERTURE = aperture diameter
 	float iso = 0.002 / sqrt(expo * frame_time) * APERTURE;
@@ -195,6 +201,7 @@ void main() {
 	// brightness simulates grain size, which is affected by iso
 	finalColor *= 1 - max(0, normal_distribution(vec2(randomFloat(), randomFloat()), 0, min(0.5, 0.05 * iso)).x) * float(randomFloat() > 0.2);
 	finalColor = clamp01(finalColor);
+#endif
 #endif
 
 
