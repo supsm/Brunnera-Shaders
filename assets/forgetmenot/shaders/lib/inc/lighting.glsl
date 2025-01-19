@@ -314,7 +314,7 @@ vec3 basicLighting(
 			shadowMapTexture,
 			shadowMap
 		);
-		shadowFactor *= skyLight * step(0.01, NdotL);
+		shadowFactor *= smoothstep(0.0, 0.5, skyLight) * step(0.01, NdotL);
 
 		if (isWater > 0.5) shadowFactor = 1.0;
 		
