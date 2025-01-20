@@ -274,7 +274,9 @@ void main() {
 			// color = vec3(scattering);
 			// color += scattering;
 			color = mix(scattering, color, transmittance);
-			color = mix(color, texture(u_sky_display, texcoord).rgb, smoothstep(0.75, 0.95, blockDistance / frx_viewDistance));
+			if (frx_cameraInWater != 1) {
+				color = mix(color, texture(u_sky_display, texcoord).rgb, smoothstep(0.75, 0.95, blockDistance / frx_viewDistance));
+			}
 		} else {
 			color = mix(color, pow(frx_fogColor.rgb, vec3(2.2)), smoothstep(frx_fogStart, frx_fogEnd, blockDistance));
 		}

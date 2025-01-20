@@ -7,7 +7,7 @@ vec3 sampleAtmosphere(in vec3 viewDir, in sampler2D skyLutDay, in sampler2D skyL
 		vec3 skyColor;
 
 		if (length(skyViewPos) < atmosphereRadiusMM) {
-			skyColor = 
+			skyColor =
 				2.0 * getValFromSkyLUT(viewDir, getSunVector(), skyLutDay) + 
 				getValFromSkyLUT(viewDir, getMoonVector(), skyLutNight);
 		} else {
@@ -65,7 +65,7 @@ vec3 sampleAtmosphere(in vec3 viewDir, in sampler2D skyLutDay, in sampler2D skyL
 
 		return skyColor;
 	}
-	
+
 	return pow(frx_fogColor.rgb, vec3(2.2));
 }
 
