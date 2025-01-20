@@ -27,43 +27,7 @@ vec3 sampleAtmosphere(in vec3 viewDir, in sampler2D skyLutDay, in sampler2D skyL
 		return normalize(pow(frx_fogColor.rgb, vec3(2.2))) * 0.4 + 0.075;
 	}
 	if(frx_worldIsEnd == 1) {
-		vec3 skyColor = vec3(0.0);
-
-		vec2 plane = viewDir.xz / (abs(viewDir.y + length(viewDir.xz) * 0.3));
-		plane *= 10.0;
-
-		// Normal stars
-		vec3 stars = vec3(0.0);
-		vec3 starColor = normalize(hash32(floor(plane)) + 0.001);
-
-		for(int i = 0; i < 3; i++) {
-			float brightness = 1.0 + 10.0 * hash12(vec2(i) + floor(plane));
-			stars += brightness * step(0.95 - 0.03 * i, 1.0 - cellular2x2x2(viewDir * 40.0 * (1.0 + i * 0.1)).x);
-		}
-
-		skyColor += (starColor * 0.5 + 0.5) * 0.3 * stars;
-
-		// Special stars 
-		float starDensity = exp(-abs(pow2(rotate2D(viewDir.yz, 0.6).y)) * 20.0);
-		starDensity *= smoothstep(0.0, 0.01, starDensity);
-
-		stars = vec3(0.0);
-		starColor *= vec3(0.5, 1.5, 0.9);
-
-		for(int i = 0; i < 3; i++) {
-			int j = i + 3;
-
-			float brightness = 1.0 + 10.0 * hash12(vec2(j) + floor(plane));
-			stars += brightness * step(0.95 - 0.03 * i, 1.0 - cellular2x2x2(viewDir * 40.0 * (1.0 + j * 0.1)).x);
-		}
-
-		skyColor += starColor * 40.0 * stars * starDensity;
-		
-		// Fog
-		float noise = fbmHash3D(viewDir, 5, 3.0, 0.0);
-		skyColor += vec3(0.2, 0.9, 0.4) * pow4(noise) * (starDensity);
-
-		return skyColor;
+		return vec3(0.0);
 	}
 
 	return pow(frx_fogColor.rgb, vec3(2.2));
@@ -92,6 +56,43 @@ void drawSunOnAtmosphere(inout vec3 atmosphere, in vec3 viewDir, in sampler2D tr
 }
 
 void drawStarsOnAtmosphere(inout vec3 atmosphere, in vec3 viewDir, in sampler2D transmittanceLut) {
+	if(frx_worldIsEnd == 1) {
+		vec2 plane = viewDir.xz / (abs(viewDir.y + length(viewDir.xz) * 0.3));
+		plane *= 10.0;
+
+		// Normal stars
+		vec3 stars = vec3(0.0);
+		vec3 starColor = normalize(hash32(floor(plane)) + 0.001);
+
+		for(int i = 0; i < 3; i++) {
+			float brightness = 1.0 + 10.0 * hash12(vec2(i) + floor(plane));
+			stars += brightness * step(0.95 - 0.03 * i, 1.0 - cellular2x2x2(viewDir * 40.0 * (1.0 + i * 0.1)).x);
+		}
+
+		atmosphere += (starColor * 0.5 + 0.5) * 0.3 * stars;
+
+		// Special stars 
+		float starDensity = exp(-abs(pow2(rotate2D(viewDir.yz, 0.6).y)) * 20.0);
+		starDensity *= smoothstep(0.0, 0.01, starDensity);
+
+		stars = vec3(0.0);
+		starColor *= vec3(0.5, 1.5, 0.9);
+
+		for(int i = 0; i < 3; i++) {
+			int j = i + 3;
+
+			float brightness = 1.0 + 10.0 * hash12(vec2(j) + floor(plane));
+			stars += brightness * step(0.95 - 0.03 * i, 1.0 - cellular2x2x2(viewDir * 40.0 * (1.0 + j * 0.1)).x);
+		}
+
+		atmosphere += starColor * 40.0 * stars * starDensity;
+		
+		// Fog
+		float noise = fbmHash3D(viewDir, 5, 3.0, 0.0);
+		atmosphere += vec3(0.2, 0.9, 0.4) * pow4(noise) * (starDensity);
+
+		return;
+	}
 	if(frx_worldHasSkylight != 1) {
 		return;
 	}
@@ -160,14 +161,14 @@ CloudLayer createCumulusCloudLayer(in vec3 viewDir) {
 	cloudLayer.altitude = 0.001;
 	cloudLayer.plane = createCloudPlane(viewDir) + 0.00001 * frx_cameraPos.xz / cloudLayer.altitude + 0.00001 * fmn_time / cloudLayer.altitude;
 
-	cloudLayer.density = 45.0;
+	cloudLayer.density = 45.0 + 40.0 * fmn_rainFactor;
 	cloudLayer.selfShadowSteps = 5;
 
 	cloudLayer.useNoiseTexture = false;
 
 	cloudLayer.noiseOctaves = 6;
 	cloudLayer.noiseLacunarity = 2.5;
-	cloudLayer.noiseLowerBound = 0.35 - 0.1 * fmn_rainFactor;
+	cloudLayer.noiseLowerBound = 0.35 - 0.3 * fmn_rainFactor;
 	cloudLayer.noiseUpperBound = 1.5;
 	
 	cloudLayer.domainMult = vec2(1.0);
@@ -339,13 +340,13 @@ vec3 getClouds(in vec3 viewDir, in CloudLayer cloudLayer, in sampler2D transmitt
 	return mix(scattering, skyColor, clamp01(cloudsTransmittanceAndScattering.x));
 }
 
-void drawCloudsOnAtmosphere(inout vec3 atmosphere, in vec3 viewDir, in sampler2D transmittanceLut)
+void drawCloudsOnAtmosphere(inout vec3 atmosphere, in vec3 viewDir, in sampler2D transmittanceLut, vec3 sky_only)
 {
 	if(frx_worldHasSkylight == 1) {
 		CloudLayer cirrusClouds = createCirrusCloudLayer(viewDir);
 		CloudLayer cumulusClouds = createCumulusCloudLayer(viewDir);
-		vec3 color = getClouds(viewDir, cirrusClouds, transmittanceLut, atmosphere, atmosphere);
-		color = getClouds(viewDir, cumulusClouds, transmittanceLut, color, atmosphere);
-		atmosphere += color;
+		vec3 color = getClouds(viewDir, cirrusClouds, transmittanceLut, atmosphere, sky_only);
+		color = getClouds(viewDir, cumulusClouds, transmittanceLut, color, sky_only);
+		atmosphere = color + sky_only;
 	}
 }

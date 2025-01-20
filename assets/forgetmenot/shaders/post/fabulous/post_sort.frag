@@ -254,6 +254,9 @@ void main() {
 
 			float fogMultiplier = mix(1.0 + 2.0 * frx_smoothedEyeBrightness.y, 15.0, float(frx_worldIsNether));
 			fogMultiplier = mix(fogMultiplier, 0.0, float(frx_cameraInWater));
+			if(frx_worldIsNether == 1) {
+				fogMultiplier *= 2.0;
+			}
 			float transmittance = exp(-blockDistance / fmn_atmosphereParams.blocksPerFogUnit * fogMultiplier);
 			
 			if(frx_worldIsOverworld == 1) {
