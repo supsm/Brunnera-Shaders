@@ -18,10 +18,10 @@ layout(location = 0) out vec4 fragColor;
 void main() {
 	initGlobals();
 
-	if(texture(u_solid_depth, texcoord).r != 1.0) {
+	/*if(texture(u_solid_depth, texcoord).r != 1.0) {
 		fragColor = vec4(0.0);
 		return;
-	}
+	}*/
 
 	vec2 jitteredCoord = gl_FragCoord.xy;
 	vec3 viewDir = normalize(setupSceneSpacePos(jitteredCoord / frxu_size, 1.0));
@@ -40,6 +40,7 @@ void main() {
 	vec3 atmosphere = sampleAtmosphere(viewDir, u_sky_day, u_sky_night, u_transmittance, u_multiscattering);
 	drawSunOnAtmosphere(atmosphere, viewDir, u_transmittance);
 	drawStarsOnAtmosphere(atmosphere, viewDir, u_transmittance);
+	drawCloudsOnAtmosphere(atmosphere, viewDir, u_transmittance);
 
 	fragColor = vec4(atmosphere, 1.0);
 }
