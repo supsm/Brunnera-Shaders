@@ -26,7 +26,46 @@ vec3 sampleAtmosphere(in vec3 viewDir, in sampler2D skyLutDay, in sampler2D skyL
 	if(frx_worldIsNether == 1) {
 		return normalize(pow(frx_fogColor.rgb, vec3(2.2))) * 0.4 + 0.075;
 	}
-	// TODO: end
+	if(frx_worldIsEnd == 1) {
+		vec3 skyColor = vec3(0.0);
+
+		vec2 plane = viewDir.xz / (abs(viewDir.y + length(viewDir.xz) * 0.3));
+		plane *= 10.0;
+
+		// Normal stars
+		vec3 stars = vec3(0.0);
+		vec3 starColor = normalize(hash32(floor(plane)) + 0.001);
+
+		for(int i = 0; i < 3; i++) {
+			float brightness = 1.0 + 10.0 * hash12(vec2(i) + floor(plane));
+			stars += brightness * step(0.95 - 0.03 * i, 1.0 - cellular2x2x2(viewDir * 40.0 * (1.0 + i * 0.1)).x);
+		}
+
+		skyColor += (starColor * 0.5 + 0.5) * 0.3 * stars;
+
+		// Special stars 
+		float starDensity = exp(-abs(pow2(rotate2D(viewDir.yz, 0.6).y)) * 20.0);
+		starDensity *= smoothstep(0.0, 0.01, starDensity);
+
+		stars = vec3(0.0);
+		starColor *= vec3(0.5, 1.5, 0.9);
+
+		for(int i = 0; i < 3; i++) {
+			int j = i + 3;
+
+			float brightness = 1.0 + 10.0 * hash12(vec2(j) + floor(plane));
+			stars += brightness * step(0.95 - 0.03 * i, 1.0 - cellular2x2x2(viewDir * 40.0 * (1.0 + j * 0.1)).x);
+		}
+
+		skyColor += starColor * 40.0 * stars * starDensity;
+		
+		// Fog
+		float noise = fbmHash3D(viewDir, 5, 3.0, 0.0);
+		skyColor += vec3(0.2, 0.9, 0.4) * pow4(noise) * (starDensity);
+
+		return skyColor;
+	}
+	
 	return pow(frx_fogColor.rgb, vec3(2.2));
 }
 
