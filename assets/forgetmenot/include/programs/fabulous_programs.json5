@@ -84,6 +84,8 @@
 				"u_hi_depth_levels",
 				"u_data",
 
+				"u_sky_display",
+
 				"u_smooth_uniforms",
 				"u_previous_color",
 			]

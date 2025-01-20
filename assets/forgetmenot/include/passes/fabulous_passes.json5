@@ -78,6 +78,8 @@
 					"hi_depth_levels",
 					"composite_data",
 
+					"sky_display",
+
 					"smooth_uniforms",
 					"sort_copy",
 				]

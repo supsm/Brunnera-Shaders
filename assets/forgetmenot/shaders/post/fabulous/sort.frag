@@ -170,20 +170,20 @@ void main() {
 	// Water effects
 	if(frx_cameraInWater == 1) {
 		float waterFogDistance = length(sceneSpacePos);
-		vec3 waterFogColor = WATER_COLOR;
+		vec3 waterFogColor = WATER_COLOR * atmosphereBrightness * 4.0;
 
 		composite *= mix(normalize(waterFogColor), vec3(1.0), exp(-waterFogDistance * 0.2));
-		composite = mix(waterFogColor * atmosphereBrightness * 1.5, composite, exp(-waterFogDistance * WATER_DIRT_AMOUNT));
+		composite = mix(waterFogColor, composite, exp(-waterFogDistance * WATER_DIRT_AMOUNT));
 
 		vec3 refractedViewDir = refract(viewDir, material.fragNormal, 1.33);
 
 		if(solidDepth == 1.0) composite = textureLod(u_skybox, refractedViewDir, 0.0).rgb;
 		if(refractedViewDir.y <= 0.001 && material.isWater > 0.5) {
-			composite = waterFogColor * atmosphereBrightness;
+			composite = waterFogColor;
 			material.f0 = 0.95;
 		}
 
-		composite = mix(composite, waterFogColor, floor(compositeDepth));
+		composite = mix(composite, waterFogColor, smoothstep(0.75, 0.95, waterFogDistance / frx_viewDistance));
 	} else if(material.isWater > 0.5) {
 		// These should eventually be configurable
 		float waterFogDistance = distance(sceneSpacePosBack, sceneSpacePos);

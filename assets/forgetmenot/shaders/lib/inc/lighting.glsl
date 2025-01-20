@@ -201,7 +201,7 @@ vec3 getSkyLightColor(
 		ambientLighting *= 0.1;
 	}
 
-	return ambientLighting;
+	return ambientLighting * 6.0;
 }
 
 vec3 getHandheldLightColor(
