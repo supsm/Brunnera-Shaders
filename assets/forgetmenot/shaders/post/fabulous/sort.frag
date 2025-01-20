@@ -170,7 +170,7 @@ void main() {
 	// Water effects
 	if(frx_cameraInWater == 1) {
 		float waterFogDistance = length(sceneSpacePos);
-		vec3 waterFogColor = WATER_COLOR * atmosphereBrightness * 8.0;
+		vec3 waterFogColor = WATER_COLOR * atmosphereBrightness * 4.0;
 
 		composite *= mix(normalize(waterFogColor), vec3(1.0), exp(-waterFogDistance * 0.2));
 		composite = mix(waterFogColor, composite, exp(-waterFogDistance * WATER_DIRT_AMOUNT));
