@@ -5,9 +5,18 @@
 // Minimal code changes; modified for my use case. Original Shadertoy code released under the MIT License.
 // --------------------------------------------------------------------------------------------------------
 
-vec3 nightAdjust(in vec3 color) {
-	return color * 1e-4;
+#include frex:shaders/api/world.glsl
+
+// night adjust for the color of the moon itself
+// (don't factor in moon size)
+vec3 nightAdjustMoon(in vec3 color) {
+	return color * 4e-4;
 }
+
+vec3 nightAdjust(in vec3 color) {
+	return nightAdjustMoon(color) * frx_moonSize + 1e-6;
+}
+
 
 const vec3 SUN_COLOR = vec3(1.0, 0.85, 0.8);
 const vec3 MOON_COLOR = vec3(1.0, 1.0, 0.9);

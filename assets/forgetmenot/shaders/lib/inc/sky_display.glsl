@@ -52,6 +52,8 @@ void drawSunOnAtmosphere(inout vec3 atmosphere, in vec3 viewDir, in sampler2D tr
 	vec3 sunDisk = smoothstep(0.99975, 0.99977, dot(viewDir, sunVector)) * sunTransmittance * sunBrightness * SUN_COLOR;
 	vec3 moonDisk = smoothstep(0.99985, 0.99987, dot(viewDir, moonVector)) * moonTransmittance * sunBrightness * MOON_COLOR;
 
+	// TODO: moon phases (use nightAdjustMoon)
+
 	atmosphere += sunDisk + moonDisk;
 }
 
@@ -347,6 +349,6 @@ void drawCloudsOnAtmosphere(inout vec3 atmosphere, in vec3 viewDir, in sampler2D
 		CloudLayer cumulusClouds = createCumulusCloudLayer(viewDir);
 		vec3 color = getClouds(viewDir, cirrusClouds, transmittanceLut, atmosphere, sky_only);
 		color = getClouds(viewDir, cumulusClouds, transmittanceLut, color, sky_only);
-		atmosphere = color + sky_only;
+		atmosphere = (color + sky_only) * 0.5;
 	}
 }
