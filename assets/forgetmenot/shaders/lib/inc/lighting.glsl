@@ -198,7 +198,7 @@ vec3 getSkyLightColor(
 			ambientLighting += vec3(4.0, 1.5, 0.0) * (clamp01(-fragNormal.y * 0.75 + 0.25)) * ambientOcclusion;
 		#endif
 	} else if(frx_worldIsEnd == 1) {
-		ambientLighting *= 0.1;
+		ambientLighting *= 0.2;
 	}
 
 	return ambientLighting * 6.0;

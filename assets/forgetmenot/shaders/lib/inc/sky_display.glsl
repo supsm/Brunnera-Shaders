@@ -87,7 +87,7 @@ void drawStarsOnAtmosphere(inout vec3 atmosphere, in vec3 viewDir, in sampler2D 
 			stars += brightness * step(0.95 - 0.03 * i, 1.0 - cellular2x2x2(viewDir * 40.0 * (1.0 + j * 0.1)).x);
 		}
 
-		atmosphere += starColor * 40.0 * stars * starDensity;
+		atmosphere += starColor * 2.0 * stars * starDensity;
 		
 		// Fog
 		float noise = fbmHash3D(viewDir, 5, 3.0, 0.0);
@@ -345,6 +345,9 @@ vec3 getClouds(in vec3 viewDir, in CloudLayer cloudLayer, in sampler2D transmitt
 void drawCloudsOnAtmosphere(inout vec3 atmosphere, in vec3 viewDir, in sampler2D transmittanceLut, vec3 sky_only)
 {
 	if(frx_worldHasSkylight == 1) {
+		// TODO: cumulus clouds don't look right at certain times:
+		// sunrise/sunset
+		// thunder
 		CloudLayer cirrusClouds = createCirrusCloudLayer(viewDir);
 		CloudLayer cumulusClouds = createCumulusCloudLayer(viewDir);
 		vec3 color = getClouds(viewDir, cirrusClouds, transmittanceLut, atmosphere, sky_only);
