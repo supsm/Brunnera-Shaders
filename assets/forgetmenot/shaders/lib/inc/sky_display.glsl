@@ -114,10 +114,12 @@ void drawStarsOnAtmosphere(inout vec3 atmosphere, in vec3 viewDir, in sampler2D 
 
 	vec3 stars = vec3(step(starThreshold, hash12(floor(starPlane))) * moonTransmittance); // Star shape
 	stars *= (hash32(floor(starPlane)) * 0.7 + 0.3); // Star color
-	stars *= 1.0 + 5.0 * step(starThreshold * 0.5 + 0.5, hash12(floor(starPlane))); // Star brightness
+	stars *= 20.0 * exponential_distribution(hash12(floor(starPlane) + vec2(1.0)) + 1e-8, 2.0); // Star brightness
 
-	vec3 tdata = getTimeOfDayFactors();
-	float starMultiplier = tdata.z * 0.5 + tdata.y;
+	// TODO: twinkling (color and brightness)
+
+	//vec3 tdata = getTimeOfDayFactors();
+	//float starMultiplier = tdata.z * 0.5 + tdata.y;
 
 	atmosphere += stars;
 }

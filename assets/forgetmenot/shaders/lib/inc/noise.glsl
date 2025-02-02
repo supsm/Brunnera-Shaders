@@ -377,3 +377,11 @@ vec2 normal_distribution(vec2 x, float mean, float stddev)
 		stddev * sqrt(-2 * log(x.x)) * cos(2 * PI * x.y) + mean,
 		stddev * sqrt(-2 * log(x.x)) * sin(2 * PI * x.y) + mean);
 }
+
+// make uniform distribution exponential
+// floor if you want a geometric distribution (lambda = -ln(1-p))
+// x should be (0, 1)
+float exponential_distribution(float x, float lambda)
+{
+	return -log(x) / lambda;
+}
