@@ -95,7 +95,10 @@ void main() {
 	float frame_time = texelFetch(u_precise_uniforms, ivec2(1, 0), 0).x;
 	const float aperture_diameter = 1.0 / APERTURE;
 
+	// lens/sensor effects
+
 	vec3 color;
+	float expo = exposure;//clamp(exposure, 0.001, 0.002);
 
 #ifdef CHROMATIC_ABERRATION
 	// Chromatic Aberration
@@ -115,29 +118,31 @@ void main() {
 	color = texture(u_color, texcoord).rgb;
 #endif
 
+#ifdef SENSOR_NOISE
+	// inverse of total light exposure multiplier (arbitrary units)
+	// 1 / APERTURE = aperture diameter
+	float inv_exp = APERTURE * APERTURE / frame_time * sqrt(1e-7 * frxu_size.x * frxu_size.y);
+
+#if CAM_TYPE == CAM_TYPE_DIGITAL
+	// digital noise (additive and subtractive, per-channel)
+	// exposure affects noise directly
+	float noisiness = 0.00008 * sqrt(inv_exp);
+	color += vec4(normal_distribution(vec2(randomFloat(), randomFloat()), 0, noisiness), normal_distribution(vec2(randomFloat(), randomFloat()), 0, noisiness)).xyz;
+#else
+	// film grain (multiplicative, monochromatic)
+	// brightness simulates grain size, which is affected by iso
+	// iso has arbitrary units
+	float iso = 0.002 * sqrt(inv_exp / expo);
+	color *= 1 - max(0, normal_distribution(vec2(randomFloat(), randomFloat()), 0, min(5.0, 0.2 * iso * iso)).x) * float(randomFloat() > 0.2);
+#endif
+#endif
+
+
+	// post processing
+
 	vec3 finalColor = color.rgb;
 
 	// TODO: AWB or smth
-	float expo = exposure;//clamp(exposure, 0.001, 0.002);
-
-	// aces tonemap
-	//finalColor = FRX_ACES_INPUT_MATRIX * finalColor;
-	//finalColor = frx_toneMap(finalColor);
-	//finalColor = FRX_ACES_OUTPUT_MATRIX * finalColor;
-	// supsm's wacky tonemap
-	/*
-	finalColor = ((0.97205 * tanh(2 *  finalColor - 0.2) - 0.02795) * tanh(2 * finalColor + 0.26) + 0.0559) *
-		(exp(-8 * finalColor + 1) + 1) *
-		(-(0.8 * intpow(finalColor, 2) - 0.3 * finalColor) / (intpow(finalColor, 4) + 2 * intpow(finalColor, 2) + 0.2 * finalColor) + 1) *
-		(1 - exp(-25 * finalColor)); //*/
-	// reinhard
-	//finalColor = finalColor / (finalColor + vec3(1));
-	// new lumi
-	//finalColor = -exp(0.69314717 - 1.386294 * finalColor) * 0.5 + 1;
-	// lottes
-	//finalColor = lottes(finalColor, 8);
-	// linear
-	//finalColor = clamp(finalColor, vec3(0), vec3(1));
 
 	// these tonemaps are fitted from "Camera Response Functions"
 	// from Columbia University's Computer Imaging and Vision Laboratory
@@ -183,27 +188,6 @@ void main() {
 	finalColor.b = tonemap_approx(x, 2.96, -1.16, -1.98, -0.07, 0.59, 2.94, -2.97, -0.80, -0.01);
 	finalColor = clamp01(finalColor);
 #endif
-
-
-#ifdef SENSOR_NOISE
-	// arbitrary units
-	// 1 / APERTURE = aperture diameter
-	float iso = 0.002 / sqrt(expo * frame_time) * APERTURE;
-
-#if CAM_TYPE == CAM_TYPE_DIGITAL
-	// digital noise (additive and subtractive, per-channel)
-	// exposure affects noise directly
-	float noisiness = 0.01;
-	finalColor += vec4(normal_distribution(vec2(randomFloat(), randomFloat()), 0, noisiness * iso), normal_distribution(vec2(randomFloat(), randomFloat()), 0, noisiness * iso)).xyz;
-	finalColor = clamp01(finalColor);
-#else
-	// film grain (multiplicative, monochromatic)
-	// brightness simulates grain size, which is affected by iso
-	finalColor *= 1 - max(0, normal_distribution(vec2(randomFloat(), randomFloat()), 0, min(0.5, 0.05 * iso)).x) * float(randomFloat() > 0.2);
-	finalColor = clamp01(finalColor);
-#endif
-#endif
-
 
 	//const int bitDepth = 256;
 	//finalColor = round(finalColor * bitDepth) / bitDepth;
