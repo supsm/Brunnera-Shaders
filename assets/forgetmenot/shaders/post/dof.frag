@@ -27,9 +27,18 @@ layout(location = 0) out vec4 fragColor;
 // focus depth is depth of focus point, only used for forward-blending for depth
 //     when not -1 it will sample depth instead of color
 // last element of return value is sum of multipliers
-vec4 sample_gaussian(vec2 center, float stddev, float kernel_size_stddevs = 2, vec2 step_size = vec2(1), float depth_multiplier = 0, float focus_depth = -1)
+vec4 sample_gaussian(vec2 center, float stddev, float kernel_size_stddevs, vec2 step_size, float depth_multiplier, float focus_depth)
 {
-	vec4 default_val = vec4(texture((focus_depth == -1 ? u_color : u_depth), center).rgb, 1);
+	vec4 default_val;
+	if (focus_depth != -1)
+	{
+		default_val = vec4(texture(u_depth, center).rgb, 1);
+	}
+	else
+	{
+		default_val = vec4(texture(u_color, center).rgb, 1);
+	}
+
 	if (stddev == 0)
 	{
 		return default_val;
@@ -123,11 +132,15 @@ vec4 sample_gaussian(vec2 center, float stddev, float kernel_size_stddevs = 2, v
 		if (lod >= 1)
 		{
 			bool is_color = (focus_depth == -1);
-			val = vec4(textureLod((is_color ? u_downsampled : u_depth_downsampled), center, lod).rgb, 1);
 			if (is_color)
 			{
+				val = vec4(textureLod(u_downsampled, center, lod).rgb, 1);
 				// fine to pow alpha since it's always 1
 				val = pow(val, vec4(1 / GEM_POWER));
+			}
+			else
+			{
+				val = vec4(textureLod(u_depth_downsampled, center, lod).rgb, 1);
 			}
 		}
 		return val;
@@ -159,7 +172,7 @@ void main()
 	// TODO: factor in aperture
 	float dof_strength = min(DOF_STRENGTH * 100 * aperture_diameter * abs(focus_depth - pixel_depth), 16 * DOF_STRENGTH); // cap at 64 pixels to avoid excessive lag
 	// allow forward blending (depth_multiplier = 0) if sample took on depth of another pixel (pixel_depth_info.z > 1)
-	vec3 color = sample_gaussian(texcoord, dof_strength, 2, vec2(1.5), (pixel_depth_info.z < 1.05 ? 1.02 : 0)).rgb;
+	vec3 color = sample_gaussian(texcoord, dof_strength, 2, vec2(1.5), (pixel_depth_info.z < 1.05 ? 1.02 : 0), -1).rgb;
 
 	fragColor = vec4(color, 1.0);
 }
